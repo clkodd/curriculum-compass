@@ -1,5 +1,5 @@
 Teammates
-Hayley Chang, Ananya, Caroline, Parshana Sekhon
+Hayley Chang, Ananya, Caroline Koddenberg, Parshana Sekhon
 
 # volunteer-verse
 
