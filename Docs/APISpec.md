@@ -157,7 +157,7 @@ Adds event traits to the specified event, using the event's ID.
 }
 ```
 
-### 2.3. Post Events - `/event-planner/{event_id}` (POST)
+### 2.3. Post Events - `/event-planner/{event_id}/schedule` (POST)
 
 Posts the list of specified events.
 
