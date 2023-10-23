@@ -54,7 +54,7 @@ Creates a new schedule for a specific volunteer.
 }
 ```
 
-### 1.3. Add Event to Schedule - `/schedules/{schedule_id}/events/{event_id}` (PUT)
+### 1.3. Add Event to Schedule - `/schedules/{schedule_id}/events/{event_id}` (POST)
 
 Adds a specific event to a schedule.
 
@@ -87,7 +87,7 @@ Handles the registration process for a specific schedule.
 }
 ```
 
-### 1.5. Remove Event from Schedule - `/schedules/{schedule_id}/remove` (PUT)
+### 1.5. Remove Event from Schedule - `/schedules/{schedule_id}/remove` (POST)
 
 Removes an event from a volunteer's schedule.
 
@@ -130,7 +130,7 @@ Creates a new event.
 }
 ```
 
-### 2.2. Get Event Plan - `/event-planner/{event_id}` (PUT)
+### 2.2. Get Event Plan - `/event-planner/{event_id}` (POST)
 
 Adds event traits to the specified event, using the event's ID.
 
