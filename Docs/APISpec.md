@@ -4,8 +4,8 @@
 
 The API calls are made in this sequence when registering for events:
 1. `Get Events`
-2. `New Schedule`
-3. `Add Event to Schedule` (Can be called multiple times)
+2. `Create new schedule for a volunteer`
+3. `Add an event to schedule` (Can be called multiple times)
 4. `Register for Events`
 
 An event can be removed from a schedule with the following API call:
@@ -34,27 +34,32 @@ Retreives the list of available events.
 ]
 ```
 
-### 1.2. New Schedule - `/schedules/` (POST)
+### 1.2. New Schedule - `/volunteers/` (POST)
 
-Creates a new schedule for a specific volunteer.
+Creates a new volunteer.
 
 **Request**: 
 
 ```json
 {
-    "volunteer": "string"
+    "volunteer_name": "string",
+	"city_name": "string", 
+	"age": "int",
+	"phone_number": "int",
+	"email": "string",
 }
+
 ```
 
 **Returns**: 
 
 ```json
 {
-    "schedule_id": "integer" /* Used in future calls to add events and register */
+      "volunteer_id": "int"
 }
 ```
 
-### 1.3. Add Event to Schedule - `/schedules/{schedule_id}/events/{event_id}` (POST)
+### 1.3. Add Event to Schedule - `/volunteers/events/{event_id}` (POST)
 
 Adds a specific event to a schedule.
 
@@ -66,7 +71,7 @@ Adds a specific event to a schedule.
 }
 ```
 
-### 1.4. Register for Events - `/schedules/{schedule_id}/register` (POST)
+### 1.4. Register for Events - `/volunteers/{volunteer_id}/register` (POST)
 
 Handles the registration process for a specific schedule.
 
@@ -87,7 +92,7 @@ Handles the registration process for a specific schedule.
 }
 ```
 
-### 1.5. Remove Event from Schedule - `/schedules/{schedule_id}/remove` (POST)
+### 1.5. Remove Event from Schedule - `/schedules/{event_id}/remove` (POST)
 
 Removes an event from a volunteer's schedule.
 
@@ -130,7 +135,7 @@ Creates a new event.
 }
 ```
 
-### 2.2. Get Event Plan - `/event-planner/{event_id}` (POST)
+### 2.2. Get Event Plan - `/event-planner/{event_id}/{event_organizer_id}` (POST)
 
 Adds event traits to the specified event, using the event's ID.
 
@@ -157,29 +162,8 @@ Adds event traits to the specified event, using the event's ID.
 }
 ```
 
-### 2.3. Post Events - `/event-planner/{event_id}/schedule` (POST)
 
-Posts the list of specified events.
-
-**Request**:
-
-```json
-{
-    [
-        "event_id": "integer"
-    ]
-}
-```
-
-**Returns**:
-
-```json
-{
-    "success": "boolean"
-}
-```
-
-### 2.4. Delete Event - `/event-planner/{event_id}/delete` (POST)
+### 2.3. Delete Event - `/event-planner/{event_id}/delete` (POST)
 
 Removes an event from a volunteer's schedule.
 
