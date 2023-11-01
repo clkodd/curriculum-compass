@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from src.api import auth
 import sqlalchemy
 from src import database as db
+from datetime import datetime
 
 router = APIRouter(
     prefix="/events",
@@ -17,8 +18,8 @@ class NewEvent(BaseModel):
     minimum_age: int
     activity_level: int
     location: str
-    start_time: str #change these to strings bc i don't think datetime is a datatype but feel free to edit this
-    end_time: str
+    start_time: datetime #change these to strings bc i don't think datetime is a datatype but feel free to edit this
+    end_time: datetime
     description: str
 
 @router.post("/")
@@ -34,8 +35,8 @@ def get_events(new_event: NewEvent):
             "minimum_age": 16,
             "activity_level": 2,
             "location": "San Luis Obispo",
-            "start_time": "2:00pm",
-            "end_time": "5:00pm",
+            "start_time": datetime,
+            "end_time": datetime,
             "description": "description tbd lol"
         }
     ]
