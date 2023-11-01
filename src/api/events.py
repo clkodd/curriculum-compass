@@ -18,7 +18,7 @@ class NewEvent(BaseModel):
     minimum_age: int
     activity_level: int
     location: str
-    start_time: datetime #change these to strings bc i don't think datetime is a datatype but feel free to edit this
+    start_time: datetime 
     end_time: datetime
     description: str
 
