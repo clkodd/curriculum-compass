@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi  import APIRouter, Depends
 from pydantic import BaseModel
-from src.api import auth
-import sqlalchemy
-from src import database as db
+from src.api  import auth
+from src      import database as db
 from datetime import datetime
+import sqlalchemy
+
 
 router = APIRouter(
     prefix="/events",
@@ -11,32 +12,42 @@ router = APIRouter(
     dependencies=[Depends(auth.get_api_key)],
 )
 
-class NewEvent(BaseModel):
-    event_id: int
-    name: str
-    spots_left: int
-    minimum_age: int
-    activity_level: int
-    location: str
-    start_time: datetime 
-    end_time: datetime
-    description: str
 
-@router.get("/")
-def get_events(new_event: NewEvent):
+@router.get("/events", tags = "events")
+def get_events():
     """ 
     Retreives the list of available events.
     """
-    return [
-        {
-             "event_id": 1,
-            "name": "volunteer event lol", 
-            "spots_left": 5,
-            "minimum_age": 16,
-            "activity_level": 2,
-            "location": "San Luis Obispo",
-            "start_time": datetime,
-            "end_time": datetime,
-            "description": "description tbd lol"
-        }
-    ]
+
+    with db.engine.begin() as connection:
+        events = connection.execute(
+                    sqlalchemy.text("""
+                                    SELECT events.event_id, events.name, events.min_age, events.activity_level, 
+                                        events.location, events.start_time, events.end_time, events.description, 
+                                        (events.total_spots - COUNT(volunteer_schedule.event_id)) AS spots_left
+                                    FROM events
+                                    JOIN volunteer_schedule
+                                    ON events.event_id = volunteer_schedule.event_id
+                                    GROUP BY events.event_id
+                                    ORDER BY start_time
+                                    """))
+
+    event_list = []
+
+    for row in events:
+        if row.spots_left > 0:
+            event_list.append(
+                {
+                    "event_id": row.event_id,
+                    "name": row.name, 
+                    "spots_left": row.spots_left,
+                    "minimum_age": row.min_age,
+                    "activity_level": row.activity_level,
+                    "location": row.location,
+                    "start_time": row.start_time,
+                    "end_time": row.end_time,
+                    "description": row.description,
+                }
+            )
+
+    return event_list
