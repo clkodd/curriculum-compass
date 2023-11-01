@@ -22,6 +22,8 @@ app = FastAPI(
 )
 
 app.include_router(volunteers.router)
+app.include_router(events.router)
+app.include_router(planner.router)
 
 @app.exception_handler(exceptions.RequestValidationError)
 @app.exception_handler(ValidationError)
@@ -37,4 +39,3 @@ async def validation_exception_handler(request, exc):
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Volunteer Verse!"}
-    
