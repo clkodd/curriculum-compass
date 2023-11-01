@@ -33,9 +33,9 @@ app.add_middleware(
 )
 
 app.include_router(audit.router)
-app.include_router(carts.router)
-app.include_router(catalog.router)
-app.include_router(bottler.router)
+#app.include_router(carts.router)
+#app.include_router(catalog.router)
+#app.include_router(bottler.router)
 app.include_router(barrels.router)
 app.include_router(admin.router)
 
