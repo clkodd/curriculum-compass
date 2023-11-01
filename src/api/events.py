@@ -22,7 +22,7 @@ class NewEvent(BaseModel):
     end_time: datetime
     description: str
 
-@router.post("/")
+@router.get("/")
 def get_events(new_event: NewEvent):
     """ 
     Retreives the list of available events.
