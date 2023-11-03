@@ -14,13 +14,25 @@ class NewVolunteer(BaseModel):
     volunteer_name: str
     city: str
     age: str
-    phone_number: str
     email: str
 
-@router.post("/")
-def new_schedule(new_volunteer: NewVolunteer):
+@router.post("/volunteers")
+def new_volunteer(new_volunteer: NewVolunteer):
     """ """
-    return {"volunteer_id": 1}
+    with db.engine.begin() as connection:
+        volunteer_id = connection.execute(sqlalchemy.text(
+            """
+                INSERT INTO volunteers (name, city, age, email)
+                VALUES (:volunteer_name, :city, :age, :email)
+                RETURNING volunteer_id
+            """
+        ), [{"volunteer_name": new_volunteer.volunteer_name}, 
+            {"city": new_volunteer.city}, 
+            {"age": new_volunteer.age},
+            {"email": new_volunteer.email}]).scalar()
+
+
+    return {"volunteer_id": volunteer_id}
 
 class EventAdded(BaseModel):
     confirmed: bool
