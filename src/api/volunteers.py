@@ -17,7 +17,7 @@ class NewVolunteer(BaseModel):
     email: str
 
 @router.post("/volunteers")
-def new_volunteer(new_volunteer: NewVolunteer):
+def new_volunteers(new_volunteer: NewVolunteer):
     """ """
     with db.engine.begin() as connection:
         volunteer_id = connection.execute(sqlalchemy.text(

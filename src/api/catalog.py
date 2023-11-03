@@ -10,8 +10,8 @@ router = APIRouter(
     dependencies=[Depends(auth.get_api_key)],
 )
 
-@router.post("/")
-def new_schedule():
+@router.get("/events")
+def get_events():
     """ """
     return [
         {

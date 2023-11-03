@@ -14,7 +14,7 @@ router = APIRouter(
 
 class NewEvent(BaseModel):
     name: str
-    spots_left: int
+    total_spots: int
     minimum_age: int
     activity_level: int
     location: str
@@ -40,7 +40,7 @@ def get_event_plan(event_id: int, new_event: NewEvent):
             """
                 UPDATE event 
                 SET name = :name, 
-                    spots_left = :spots_left, 
+                    total_spots = :total_spots, 
                     min_age = :minimum_age, 
                     activity_level = :activity_level,
                     location = :location,
@@ -50,7 +50,7 @@ def get_event_plan(event_id: int, new_event: NewEvent):
                 WHERE event.event_id = :event_id
             """
         ), [{"name": new_event.name}, 
-            {"spots_left": new_event.spots_left}, 
+            {"total_spots": new_event.total_spots}, 
             {"minimum_age": new_event.minimum_age},
             {"location": new_event.location},
             {"start_time": new_event.start_time},
