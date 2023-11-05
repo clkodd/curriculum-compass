@@ -14,7 +14,7 @@ router = APIRouter(
 
 class NewEvent(BaseModel):
     name: str
-    spots_left: int
+    total_spots: int
     minimum_age: int
     activity_level: int
     location: str
@@ -23,7 +23,7 @@ class NewEvent(BaseModel):
     description: str
 
 @router.post("/create")
-def new_event():
+def new_event(event_organizer_id: int):
     """ 
     Creates a new event.
     """
@@ -31,11 +31,38 @@ def new_event():
 
 
 @router.post("/{event_id}/{event_organizer_id}")
-def get_event_plan(new_event: NewEvent):
+def get_event_plan(event_id: int, new_event: NewEvent):
     """ 
     Adds event traits to the specified event, using the event's ID.
     """
-    return "OK"
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            """
+                UPDATE event 
+                SET name = :name, 
+                    total_spots = :total_spots, 
+                    min_age = :minimum_age, 
+                    activity_level = :activity_level,
+                    location = :location,
+                    start_time = :start_time,
+                    end_time = :end_time,
+                    description = :description,
+                WHERE event.event_id = :event_id
+            """
+        ), [{"name": new_event.name}, 
+            {"total_spots": new_event.total_spots}, 
+            {"minimum_age": new_event.minimum_age},
+            {"location": new_event.location},
+            {"start_time": new_event.start_time},
+            {"end_time": new_event.end_time},
+            {"description": new_event.description},
+            {"event_id": event_id}
+            ]).scalar()
+
+    if result.rowcount == 1:
+        return "OK"
+    else:
+        raise Exception("Invalid event_id")
 
 @router.post("/{event_id}/{event_organizer_id}")
 def delete_event(event_id):
