@@ -5,8 +5,8 @@ import sqlalchemy
 from src import database as db
 
 router = APIRouter(
-    prefix="/volunteers",
-    tags=["volunteers"],
+    prefix="/organization",
+    tags=["organization"],
     dependencies=[Depends(auth.get_api_key)],
 )
 
@@ -15,9 +15,12 @@ class NewOrganization(BaseModel):
     city: str
     verified: bool
 
-@router.post("/organization")
+@router.post("/")
 def new_organizations(new_organization: NewOrganization):
     """ """
+    print(new_organization.name)
+    print(new_organization.city)
+    print(new_organization.verified)
     with db.engine.begin() as connection:
         org_id = connection.execute(sqlalchemy.text(
             """
@@ -25,9 +28,9 @@ def new_organizations(new_organization: NewOrganization):
                 VALUES (:name, :city, :verified)
                 RETURNING org_id
             """
-        ), [{"name": new_organization.name}, 
-            {"city": new_organization.city}, 
-            {"verified": new_organization.verified}]).scalar()
+        ), [{"name": new_organization.name, 
+             "city": new_organization.city, 
+             "verified": new_organization.verified}]).scalar()
 
 
     return {"org_id": org_id}
@@ -36,19 +39,19 @@ class NewSupervisor(BaseModel):
     sup_name: str
     email: str
 
-@router.post("/organization/{org_id}/supervisor")
+@router.post("/{org_id}/supervisor")
 def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
     """ """
     with db.engine.begin() as connection:
         sup_id = connection.execute(sqlalchemy.text(
             """
-                INSERT INTO supervisors (name, org_id, email)
-                VALUES (:name, :org_id, :email)
+                INSERT INTO supervisors (sup_name, org_id, email)
+                VALUES (:sup_name, :org_id, :email)
                 RETURNING sup_id
             """
-        ), [{"name": new_supervisor.name}, 
-            {"org_id": org_id}, 
-            {"email": new_supervisor.email}]).scalar()
+        ), [{"sup_name": new_supervisor.sup_name, 
+            "org_id": org_id, 
+            "email": new_supervisor.email}]).scalar()
 
 
     return {"sup_id": sup_id}
