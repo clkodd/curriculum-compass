@@ -11,25 +11,13 @@ router = APIRouter(
     dependencies=[Depends(auth.get_api_key)],
 )
 
-class NewEvent(BaseModel):
-    event_id: int
-    name: str
-    spots_left: int
-    minimum_age: int
-    activity_level: int
-    location: str
-    start_time: datetime 
-    end_time: datetime
-    description: str
-
 @router.get("/")
-def get_events(new_event: NewEvent):
+def get_events():
     """ 
     Retreives the list of available events.
     """
     return [
         {
-             "event_id": 1,
             "name": "volunteer event lol", 
             "spots_left": 5,
             "minimum_age": 16,

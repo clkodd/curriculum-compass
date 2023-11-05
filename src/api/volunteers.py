@@ -29,6 +29,7 @@ def new_volunteer(new_volunteer: NewVolunteer):
 # change - input volunteer id and event id. i want to add X event to a specific volunteer's schedule
 def add_event(volunteer_id: int, event_id: int):
     """ """
+    
     with db.engine.begin() as connection:
         event = connection.execute(sqlalchemy.text(
             """
@@ -44,21 +45,23 @@ def add_event(volunteer_id: int, event_id: int):
         volunteer = connection.execute(sqlalchemy.text(
             """
             SELECT age
-            FROM volunteer
+            FROM volunteers
             """))
     r2 = volunteer.first()
     age = r2.age
 
     if cur_spots >= 1 and age >= min_age:
         with db.engine.begin() as connection:
-            connection.execute(sqlalchemy.text(
+            result = connection.execute(sqlalchemy.text(
                 """
                 INSERT INTO volunteer_schedule
                 (volunteer_id, event_id) 
                 SELECT :volunteer_id, event_id 
                 FROM events WHERE events.event_id = :event_id
+                RETURNING schedule_id
                 """),
-            [{"volunteer_id": volunteer_id, "event_id": event_id}])
+                [{"volunteer_id": volunteer_id, "event_id": event_id}])
+            schedule_id = result.scalar()
     
     print("EVENT ADDED: ", event_id, " VOLUNTEER: ", volunteer_id)       
     return "OK"
