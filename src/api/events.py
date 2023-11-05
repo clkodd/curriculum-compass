@@ -17,7 +17,7 @@ def get_events():
     Retreives the list of available events.
     """
 
-    #how does total_spots work confusion? should we just change it to spots left?
+    #how does total_spots work confusion? should we just change it to spots left? or maybe split into total_spots and num_registered? idk
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("""
         SELECT name, total_spots, min_age, activity_level, location, start_time, end_time, description
@@ -27,7 +27,7 @@ def get_events():
         for row in result:
             available_events.append(
                 {
-                "name": row.name, 
+                "event_name": row.name, 
                 "spots_left": row.total_spots,
                 "minimum_age": row.min_age,
                 "activity_level": row.activity_level,
