@@ -28,10 +28,10 @@ def new_volunteers(new_volunteer: NewVolunteer):
                 VALUES (:volunteer_name, :city, :age, :email)
                 RETURNING volunteer_id
             """
-        ), [{"volunteer_name": new_volunteer.volunteer_name}, 
-            {"city": new_volunteer.city}, 
-            {"age": new_volunteer.age},
-            {"email": new_volunteer.email}]).scalar()
+        ), [{"volunteer_name": new_volunteer.volunteer_name, 
+             "city": new_volunteer.city, 
+            "age": new_volunteer.age,
+            "email": new_volunteer.email}]).scalar()
 
 
     return {"volunteer_id": volunteer_id}
