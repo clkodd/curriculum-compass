@@ -13,7 +13,7 @@ create table
     description text null,
     constraint event_pkey primary key (event_id),
     constraint event_event_id_key unique (event_id),
-    constraint event_sup_id_fkey foreign key (sup_id) references supervisor (sup_id) ON DELETE CASCADE
+    constraint event_sup_id_fkey foreign key (sup_id) references supervisors (sup_id) ON DELETE CASCADE
   ) tablespace pg_default;
 
 create table
