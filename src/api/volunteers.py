@@ -39,7 +39,7 @@ def add_event(volunteer_id: int, event_id: int):
     r1 = event.first()
     cur_spots = r1.total_spots
     min_age = r1.min_age
-    # need to add a check for timing
+    # need to add a check for timing, how?
 
     with db.engine.begin() as connection:
         volunteer = connection.execute(sqlalchemy.text(
@@ -56,15 +56,14 @@ def add_event(volunteer_id: int, event_id: int):
                 """
                 INSERT INTO volunteer_schedule
                 (volunteer_id, event_id) 
-                SELECT :volunteer_id, event_id 
+                SELECT :volunteer_id, :event_id 
                 FROM events WHERE events.event_id = :event_id
                 RETURNING schedule_id
                 """),
                 [{"volunteer_id": volunteer_id, "event_id": event_id}])
             schedule_id = result.scalar()
-    
     print("EVENT ADDED: ", event_id, " VOLUNTEER: ", volunteer_id)       
-    return "OK"
+    return {"schedule_id": schedule_id}
 
 # need to descrease number of spots in events table
 @router.post("/{volunteer_id}/register")
