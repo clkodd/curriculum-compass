@@ -70,6 +70,13 @@ def delete_event(event_id):
     """ 
     Removes an event from a volunteer's schedule.
     """
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+        """
+        DELETE FROM events
+        WHERE event_id = :event_id
+        """
+        ),{"event_id":event_id})
     return "OK"
 
 
