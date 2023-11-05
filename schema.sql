@@ -11,10 +11,9 @@ create table
     start_time timestamp with time zone not null,
     end_time timestamp with time zone not null,
     description text null,
-    timeslot timestamp with time zone [] not null,
     constraint event_pkey primary key (event_id),
     constraint event_event_id_key unique (event_id),
-    constraint event_sup_id_fkey foreign key (sup_id) references supervisor (sup_id)
+    constraint event_sup_id_fkey foreign key (sup_id) references supervisor (sup_id) ON DELETE CASCADE
   ) tablespace pg_default;
 
 create table
