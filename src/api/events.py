@@ -11,32 +11,31 @@ router = APIRouter(
     dependencies=[Depends(auth.get_api_key)],
 )
 
-class NewEvent(BaseModel):
-    event_id: int
-    name: str
-    spots_left: int
-    minimum_age: int
-    activity_level: int
-    location: str
-    start_time: datetime 
-    end_time: datetime
-    description: str
-
 @router.get("/")
-def get_events(new_event: NewEvent):
+def get_events():
     """ 
     Retreives the list of available events.
     """
-    return [
-        {
-             "event_id": 1,
-            "name": "volunteer event lol", 
-            "spots_left": 5,
-            "minimum_age": 16,
-            "activity_level": 2,
-            "location": "San Luis Obispo",
-            "start_time": datetime,
-            "end_time": datetime,
-            "description": "description tbd lol"
-        }
-    ]
+
+    #how does total_spots work confusion? should we just change it to spots left? or maybe split into total_spots and num_registered? idk
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text("""
+        SELECT name, total_spots, min_age, activity_level, location, start_time, end_time, description
+        FROM events
+        """))
+        available_events = []
+        for row in result:
+            available_events.append(
+                {
+                "event_name": row.name, 
+                "spots_left": row.total_spots,
+                "minimum_age": row.min_age,
+                "activity_level": row.activity_level,
+                "location": row.location,
+                "start_time": row.start_time,
+                "end_time": row.end_time,
+                "description": row.description,
+            }
+            )
+    print(f"available_events:", available_events)
+    return available_events
