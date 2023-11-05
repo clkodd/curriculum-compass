@@ -78,6 +78,7 @@ def add_schedule_item(volunteer_id: int, event_id: int):
     return {"schedule_id": schedule_id}
 
 # need to descrease number of spots in events table
+# ANANYA
 @router.post("/{volunteer_id}/register")
 def register_event(event_id: int):
     """ """

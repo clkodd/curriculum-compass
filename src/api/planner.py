@@ -64,6 +64,7 @@ def get_event_plan(event_id: int, new_event: NewEvent):
     else:
         raise Exception("Invalid event_id")
 
+#HAYLEY
 @router.post("/{event_id}/{event_organizer_id}")
 def delete_event(event_id):
     """ 
