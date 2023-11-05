@@ -64,11 +64,19 @@ def get_event_plan(event_id: int, new_event: NewEvent):
     else:
         raise Exception("Invalid event_id")
 
+#HAYLEY
 @router.post("/{event_id}/{event_organizer_id}")
 def delete_event(event_id):
     """ 
     Removes an event from a volunteer's schedule.
     """
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+        """
+        DELETE FROM events
+        WHERE event_id = :event_id
+        """
+        ),{"event_id":event_id})
     return "OK"
 
 

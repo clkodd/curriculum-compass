@@ -17,7 +17,7 @@ class NewVolunteer(BaseModel):
     age: str
     email: str
 
-@router.post("/volunteers")
+@router.post("/")
 def new_volunteers(new_volunteer: NewVolunteer):
     """ """
     #maybe create a schedule_id here as well that can be passed into the next function?
@@ -39,13 +39,13 @@ def new_volunteers(new_volunteer: NewVolunteer):
 # ananya does 1.3 and 2.3
 @router.post("/events/{event_id}")
 # change - input volunteer id and event id. i want to add X event to a specific volunteer's schedule
-def add_event(volunteer_id: int, event_id: int):
+def add_schedule_item(volunteer_id: int, event_id: int):
     """ """
     
     with db.engine.begin() as connection:
         event = connection.execute(sqlalchemy.text(
             """
-            SELECT total_spots, min_age, timeslot
+            SELECT total_spots, min_age
             FROM events
             """))
     r1 = event.first()
@@ -78,6 +78,7 @@ def add_event(volunteer_id: int, event_id: int):
     return {"schedule_id": schedule_id}
 
 # need to descrease number of spots in events table
+# ANANYA
 @router.post("/{volunteer_id}/register")
 def register_event(event_id: int):
     """ """
@@ -86,11 +87,9 @@ def register_event(event_id: int):
 class Schedule(BaseModel):
     schedule_id: int
 
-#pretty sure we need to input volunteer_id as well, what do yall think?
-@router.post("/{event_id}/remove")
-def remove_event(volunteer_id: int, event_id: int):
+@router.post("/{volunteer_id}/remove")
+def remove_schedule_item(volunteer_id: int, event_id: int):
     """ """
-    #need to update events table back to add a spot
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(
             """
