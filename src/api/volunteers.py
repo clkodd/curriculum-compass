@@ -74,7 +74,16 @@ def register_event(event_id: int):
 class Schedule(BaseModel):
     schedule_id: int
 
+#pretty sure we need to input volunteer_id as well, what do yall think?
 @router.post("/{event_id}/remove")
-def remove_event(event_id: int):
+def remove_event(volunteer_id: int, event_id: int):
     """ """
-    return {"schedule_id": 1}
+    #need to update events table back to add a spot
+    with db.engine.begin() as connection:
+        connection.execute(sqlalchemy.text(
+            """
+            DELETE FROM volunteer_schedule
+            WHERE volunteer_schedule.event_id = event_id AND volunteer_schedule.volunteer_id = volunteer_id
+            """),
+            [{"event_id": event_id, "volunteer_id": volunteer_id}])
+    return "OK"
