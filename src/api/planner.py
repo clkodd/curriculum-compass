@@ -31,7 +31,7 @@ def create_event(event_organizer_id: int, new_event: NewEvent):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
-                INSERT INTO event (sup_id, name, total_spots, min_age, 
+                INSERT INTO events (sup_id, name, total_spots, min_age, 
                                     activity_level, location, start_time, end_time, description)
                 VALUES (:sup_id, :name, :total_spots, :min_age, 
                         :activity_level, :location, :start_time, :end_time, :description)

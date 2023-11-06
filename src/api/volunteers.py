@@ -84,10 +84,11 @@ def add_schedule_item(volunteer_id: int, event_id: int):
 @router.post("/{volunteer_id}/register")
 def register_event(event_id: int):
     """ """
-    return {"total_events_registered": 1, "total_hours": 3}
+    total_events_registered = 0
+    total_hours = 0
+    
 
-class Schedule(BaseModel):
-    schedule_id: int
+    return {"total_events_registered": 1, "total_hours": 3}
 
 @router.post("/{volunteer_id}/remove")
 def remove_schedule_item(volunteer_id: int, event_id: int):
