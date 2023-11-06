@@ -54,6 +54,7 @@ def add_schedule_item(volunteer_id: int, event_id: int):
     cur_spots = r1.total_spots
     min_age = r1.min_age
     # need to add a check for timing, how?
+    # DON'T ADD SAME EVENT TWICE
 
     with db.engine.begin() as connection:
         volunteer = connection.execute(sqlalchemy.text(
@@ -72,23 +73,32 @@ def add_schedule_item(volunteer_id: int, event_id: int):
                 (volunteer_id, event_id) 
                 SELECT :volunteer_id, :event_id 
                 FROM events WHERE events.event_id = :event_id
-                RETURNING schedule_id
                 """),
                 [{"volunteer_id": volunteer_id, "event_id": event_id}])
-            schedule_id = result.scalar()
     print("EVENT ADDED: ", event_id, " VOLUNTEER: ", volunteer_id)       
-    return {"schedule_id": schedule_id}
+    return "OK"
 
 # need to descrease number of spots in events table
 # ANANYA
 @router.post("/{volunteer_id}/register")
-def register_event(event_id: int):
+def register_event(volunteer_id: int):
     """ """
     total_events_registered = 0
     total_hours = 0
-    
-
-    return {"total_events_registered": 1, "total_hours": 3}
+    with db.engine.begin() as connection:   
+        result = connection.execute(sqlalchemy.text(
+                """
+                SELECT DATE_PART('hour', SUM(end_time - start_time)) AS total_hours 
+                FROM events
+                JOIN volunteer_schedule
+                ON volunteer_schedule.event_id = events.event_id 
+                JOIN volunteers
+                ON volunteer_schedule.volunteer_id = volunteers.volunteer_id
+                """), 
+                [{"volunteer_id": volunteer_id}])
+        total_hours = result.scalar()
+        print(total_hours)
+    return {"total_hours": total_hours}
 
 @router.post("/{volunteer_id}/remove")
 def remove_schedule_item(volunteer_id: int, event_id: int):
