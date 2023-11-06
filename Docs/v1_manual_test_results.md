@@ -85,8 +85,7 @@ curl -X 'POST' \
 6. Response
 
 ```json
-{
-}
+"OK"
 ```
 
 7. Calling `POST /volunteers/2/register`
