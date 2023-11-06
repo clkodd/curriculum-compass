@@ -45,13 +45,15 @@ def add_schedule_item(volunteer_id: int, event_id: int):
     with db.engine.begin() as connection:
         event = connection.execute(sqlalchemy.text(
             """
-            SELECT total_spots, min_age
+            SELECT total_spots, min_age, start_time, end_time
             FROM events
             """))
     r1 = event.first()
     cur_spots = r1.total_spots
     min_age = r1.min_age
-    # TODO: need to add a check for timing, how?
+    start_time = r1.start_time
+    end_time = r1.end_time
+    # need to add a check for timing, how?
     # TODO: DON'T ADD SAME EVENT TWICE
 
     with db.engine.begin() as connection:
@@ -93,9 +95,10 @@ def total_registered_events(volunteer_id: int): # total_registered_event title c
                 JOIN volunteer_schedule ON volunteer_schedule.event_id = events.event_id 
                 WHERE volunteer_id = :volunteer_id
                 """), 
-                [{"volunteer_id": volunteer_id}]).first()
-        total_hours = result.total_hours
-        total_events_registered = result.total_events
+                [{"volunteer_id": volunteer_id}])
+        first_row = result.first()
+        total_hours = first_row.total_hours
+        total_events_registered = first_row.total_events
     return {"total_events_registered": total_events_registered, "total_hours": total_hours}
 
 @router.post("/{volunteer_id}/remove")
