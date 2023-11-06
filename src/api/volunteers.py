@@ -33,8 +33,10 @@ def new_volunteers(new_volunteer: NewVolunteer):
             "age": new_volunteer.age,
             "email": new_volunteer.email}]).scalar()
 
-
-    return {"volunteer_id": volunteer_id}
+    if volunteer_id != None:
+        return {"volunteer_id": volunteer_id}
+    else:
+        raise Exception("Invalid creation of volunteer")
 
 # ananya does 1.3 and 2.3
 @router.post("/events/{event_id}")

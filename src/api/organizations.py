@@ -18,9 +18,6 @@ class NewOrganization(BaseModel):
 @router.post("/")
 def new_organizations(new_organization: NewOrganization):
     """ """
-    print(new_organization.name)
-    print(new_organization.city)
-    print(new_organization.verified)
     with db.engine.begin() as connection:
         org_id = connection.execute(sqlalchemy.text(
             """
@@ -32,8 +29,10 @@ def new_organizations(new_organization: NewOrganization):
              "city": new_organization.city, 
              "verified": new_organization.verified}]).scalar()
 
-
-    return {"org_id": org_id}
+    if org_id != None:
+        return {"org_id": org_id}
+    else:
+        raise Exception("Invalid creation of organizer")
 
 class NewSupervisor(BaseModel):
     sup_name: str
@@ -53,5 +52,7 @@ def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
             "org_id": org_id, 
             "email": new_supervisor.email}]).scalar()
 
-
-    return {"sup_id": sup_id}
+    if sup_id != None:
+        return {"sup_id": sup_id}
+    else:
+        raise Exception("Invalid creation of supervisor")
