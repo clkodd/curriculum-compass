@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.get("/", tags = "events")
+@router.get("/")
 def get_events():
     """ 
     Retreives the list of available events.
