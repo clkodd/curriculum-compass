@@ -57,7 +57,7 @@ def create_event(event_organizer_id: int, new_event: NewEvent):
 @router.post("/{event_id}/{event_organizer_id}")
 def delete_event(event_id):
     """ 
-    Removes an event from a volunteer's schedule.
+    Deletes an event.
     """
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
