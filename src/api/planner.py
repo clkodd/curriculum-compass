@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from src.api import auth
 import sqlalchemy
 from src import database as db
+from datetime import datetime
+
 
 #fyi renamed it planner bc there were naming issues when it was event-planner bc of the -
 #change in api spec
@@ -18,8 +20,8 @@ class NewEvent(BaseModel):
     minimum_age: int
     activity_level: int
     location: str
-    start_time: str #change these to strings bc i don't think datetime is a datatype but feel free to edit this
-    end_time: str
+    start_time: datetime #change these to strings bc i don't think datetime is a datatype but feel free to edit this
+    end_time: datetime
     description: str
 
 

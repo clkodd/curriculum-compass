@@ -12,10 +12,10 @@ Roxanne has successfully registered for volunteer opportunities.
 1. Calling `GET /events/`
 
 ```html
- curl -X 'GET' \
-'https://volunteer-verse.onrender.com/events/' \
--H 'accept: application/json' \
--H 'access_token: ab026eac22f97725fd6fc88a5fe3deac'
+curl -X 'GET' \
+  'https://volunteer-verse.onrender.com/events/' \
+  -H 'accept: application/json' \
+  -H 'access_token: ab026eac22f97725fd6fc88a5fe3deac'
 ```
 
 2. Response
@@ -29,8 +29,8 @@ Roxanne has successfully registered for volunteer opportunities.
     "minimum_age": 15,
     "activity_level": 1,
     "location": "Long Beach",
-    "start_time": "2023-11-04T19:00:00+00:00",
-    "end_time": "2023-11-04T22:00:00+00:00",
+    "start_time": "2023-11-10T19:00:00+00:00",
+    "end_time": "2023-11-10T22:00:00+00:00",
     "description": "Hand out meals to the hungry."
   },
   {
@@ -40,8 +40,8 @@ Roxanne has successfully registered for volunteer opportunities.
     "minimum_age": 10,
     "activity_level": 2,
     "location": "Los Angeles",
-    "start_time": "2023-01-01T12:00:00+00:00",
-    "end_time": "2020-01-01T15:00:00+00:00",
+    "start_time": "2023-11-13T12:00:00+00:00",
+    "end_time": "2020-11-13T15:00:00+00:00",
     "description": "Come and collect trash from the beach!"
   }
 ]
@@ -90,7 +90,7 @@ curl -X 'POST' \
 7. Calling `POST /volunteers/1/register`
 ```html
 curl -X 'POST' \
-  'https://volunteer-verse.onrender.com/volunteers/{volunteer_id}/register?volunteer_id=1' \
+  'https://volunteer-verse.onrender.com/volunteers/1/register' \
   -H 'accept: application/json' \
   -H 'access_token: ab026eac22f97725fd6fc88a5fe3deac' \
   -d ''
