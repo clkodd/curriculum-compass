@@ -56,7 +56,7 @@ def create_event(event_organizer_id: int, new_event: NewEvent):
         raise Exception("Invalid event details; event not added")
 
 #HAYLEY
-@router.post("/{event_id}/{event_organizer_id}")
+@router.post("/{event_id}/")
 def delete_event(event_id):
     """ 
     Deletes an event.
