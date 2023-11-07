@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 from src.api import auth
+import sqlalchemy
+from src import database as db
 
 router = APIRouter(
     prefix="/admin",
@@ -14,10 +16,9 @@ def reset():
     Reset the game state. Gold goes to 100, all potions are removed from
     inventory, and all barrels are removed from inventory. Carts are all reset.
     """
-    # TODO: if it's able to delete say "OK " otherwise raise an exception
     with db.engine.begin() as connection:
         # Drop existing tables
-        connection.execute(sqlalchemy.text(
+        result = connection.execute(sqlalchemy.text(
             """
             TRUNCATE TABLE organizations
             RESTART IDENTITY
@@ -28,7 +29,10 @@ def reset():
             CASCADE
             """))
         
-    return "OK"
+    if result != None:
+        return "OK"
+    else:
+        raise Exception("Invalid removing of schedule")
 
 
 @router.get("/organization_info/")

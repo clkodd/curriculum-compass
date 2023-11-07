@@ -133,10 +133,13 @@ def register_event(volunteer_id: int):
 def remove_schedule_item(volunteer_id: int, event_id: int):
     """ """
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(
+        result = connection.execute(sqlalchemy.text(
             """
             DELETE FROM volunteer_schedule
             WHERE volunteer_schedule.event_id = event_id AND volunteer_schedule.volunteer_id = volunteer_id
             """),
             [{"event_id": event_id, "volunteer_id": volunteer_id}])
-    return "OK"
+    if result != None:
+        return "OK"
+    else:
+        raise Exception("Invalid removing of schedule")

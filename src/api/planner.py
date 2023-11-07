@@ -28,7 +28,6 @@ def create_event(event_organizer_id: int, new_event: NewEvent):
     """ 
     Adds event traits to the specified event, using the event's ID.
     """
-    # TODO: check for valid sup_id in the table?
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
@@ -60,8 +59,6 @@ def delete_event(event_id):
     """ 
     Removes an event from a volunteer's schedule.
     """
-    # TODO: check if event was actually deleted if the result returns sucessful 
-    # TODO: then return OK otherwise return error that wasn't able to delete the event
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
         """
@@ -69,6 +66,9 @@ def delete_event(event_id):
         WHERE event_id = :event_id
         """
         ),{"event_id":event_id})
-    return "OK"
+    if result != None:
+        return "OK"
+    else:
+        raise Exception("Invalid removing of event")
 
 
