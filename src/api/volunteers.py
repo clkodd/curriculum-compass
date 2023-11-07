@@ -43,21 +43,6 @@ def new_volunteers(new_volunteer: NewVolunteer):
 # change - input volunteer id and event id. i want to add X event to a specific volunteer's schedule
 def add_schedule_item(volunteer_id: int, event_id: int):
     """ """
-    
-    with db.engine.begin() as connection:
-        event = connection.execute(sqlalchemy.text(
-            """
-            SELECT total_spots, min_age, start_time, end_time
-            FROM events
-            """))
-    r1 = event.first()
-    cur_spots = r1.total_spots
-    min_age = r1.min_age
-    start_time = r1.start_time
-    end_time = r1.end_time
-    # need to add a check for timing, how?
-    # TODO: DON'T ADD SAME EVENT TWICE
-
     with db.engine.begin() as connection:
         volunteer = connection.execute(sqlalchemy.text(
             """
@@ -67,17 +52,63 @@ def add_schedule_item(volunteer_id: int, event_id: int):
     r2 = volunteer.first()
     age = r2.age
 
+    with db.engine.begin() as connection:
+        existing_event = connection.execute(sqlalchemy.text(
+            """
+            SELECT volunteer_id
+            FROM volunteer_schedule
+            WHERE volunteer_id = :volunteer_id AND event_id = :event_id
+            """),
+            {"volunteer_id": volunteer_id, "event_id": event_id})
+
+        if existing_event.first():
+            return "Event already in volunteer's schedule."
+
+    # Get event details
+    # Get event details
+    with db.engine.begin() as connection:
+        event = connection.execute(sqlalchemy.text(
+            """
+            SELECT total_spots, min_age, start_time, end_time
+            FROM events
+            """))
+    event_details = event.first()
+    cur_spots = event_details.total_spots
+    min_age = event_details.min_age
+    start_time = event_details.start_time
+    end_time = event_details.end_time
+    
+
+    if event_details:
+        event_start_time = event_details.start_time
+        event_end_time = event_details.end_time
+
+        with db.engine.begin() as connection:
+            conflicts = connection.execute(sqlalchemy.text(
+                """
+                SELECT vs.volunteer_id
+                FROM volunteer_schedule vs
+                JOIN events e ON vs.event_id = e.event_id
+                WHERE vs.volunteer_id = :volunteer_id
+                AND (
+                    (e.start_time >= :event_start_time AND e.start_time < :event_end_time)
+                    OR (e.end_time > :event_start_time AND e.end_time <= :event_end_time)
+                )
+                """),
+                {"volunteer_id": volunteer_id, "event_start_time": event_start_time, "event_end_time": event_end_time})
+
+            if conflicts.first():
+                    return "Timing conflict"
+
     if cur_spots >= 1 and age >= min_age:
         with db.engine.begin() as connection:
             result = connection.execute(sqlalchemy.text(
                 """
-                INSERT INTO volunteer_schedule
-                (volunteer_id, event_id) 
-                SELECT :volunteer_id, :event_id 
-                FROM events WHERE events.event_id = :event_id
+                INSERT INTO volunteer_schedule (volunteer_id, event_id) 
+                VALUES (:volunteer_id, :event_id)
                 """),
-                [{"volunteer_id": volunteer_id, "event_id": event_id}])
-    print("EVENT ADDED: ", event_id, " VOLUNTEER: ", volunteer_id)       
+                {"volunteer_id": volunteer_id, "event_id": event_id})
+    print("EVENT ADDED: ", event_id, " VOLUNTEER: ", volunteer_id)   
     return "OK"
 
 # need to descrease number of spots in events table
