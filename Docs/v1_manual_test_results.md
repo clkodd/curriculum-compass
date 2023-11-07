@@ -87,10 +87,10 @@ curl -X 'POST' \
 "OK"
 ```
 
-7. Calling `POST /volunteers/2/register`
+7. Calling `POST /volunteers/1/register`
 ```html
 curl -X 'POST' \
-  'https://volunteer-verse.onrender.com/volunteers/{volunteer_id}/register?volunteer_id=2' \
+  'https://volunteer-verse.onrender.com/volunteers/{volunteer_id}/register?volunteer_id=1' \
   -H 'accept: application/json' \
   -H 'access_token: ab026eac22f97725fd6fc88a5fe3deac' \
   -d ''
