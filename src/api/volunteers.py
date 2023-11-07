@@ -38,9 +38,7 @@ def new_volunteers(new_volunteer: NewVolunteer):
     else:
         raise Exception("Invalid creation of volunteer")
 
-# ananya does 1.3 and 2.3
 @router.post("/events/{event_id}")
-# change - input volunteer id and event id. i want to add X event to a specific volunteer's schedule
 def add_schedule_item(volunteer_id: int, event_id: int):
     """ """
 
