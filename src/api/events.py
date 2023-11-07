@@ -22,13 +22,13 @@ def get_events():
     with db.engine.begin() as connection:
         events = connection.execute(sqlalchemy.text(
                 """
-                SELECT events.event_id, events.name, events.min_age, events.activity_level, 
-                    events.location, events.start_time, events.end_time, events.description, 
-                    (events.total_spots - COUNT(volunteer_schedule.event_id)) AS spots_left
+                SELECT events.event_id, events.name, (events.total_spots - COUNT(volunteer_schedule.event_id)) AS spots_left, 
+                events.min_age, events.activity_level, events.location, events.start_time, events.end_time, events.description
                 FROM events
-                JOIN volunteer_schedule
+                FULL OUTER JOIN volunteer_schedule
                 ON events.event_id = volunteer_schedule.event_id
                 GROUP BY events.event_id
+                HAVING (events.total_spots - COUNT(volunteer_schedule.event_id)) > 0
                 ORDER BY start_time
                 """
                 ))

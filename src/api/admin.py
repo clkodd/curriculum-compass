@@ -18,7 +18,15 @@ def reset():
     with db.engine.begin() as connection:
         # Drop existing tables
         connection.execute(sqlalchemy.text(
-            "TRUNCATE events, organizations, supervisors, volunteer_schedule, volunteers CASCADE"))
+            """
+            TRUNCATE TABLE organizations
+            RESTART IDENTITY
+            CASCADE
+
+            TRUNCATE TABLE volunteers
+            RESTART IDENTITY
+            CASCADE
+            """))
         
     return "OK"
 
