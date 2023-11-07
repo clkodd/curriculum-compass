@@ -20,7 +20,6 @@ class NewVolunteer(BaseModel):
 @router.post("/")
 def new_volunteers(new_volunteer: NewVolunteer):
     """ """
-    #maybe create a schedule_id here as well that can be passed into the next function?
     with db.engine.begin() as connection:
         volunteer_id = connection.execute(sqlalchemy.text(
             """
@@ -42,7 +41,25 @@ def new_volunteers(new_volunteer: NewVolunteer):
 @router.post("/events/{event_id}")
 # change - input volunteer id and event id. i want to add X event to a specific volunteer's schedule
 def add_schedule_item(volunteer_id: int, event_id: int):
+<<<<<<< HEAD
     """ """
+=======
+    """ """ 
+    with db.engine.begin() as connection:
+        event = connection.execute(sqlalchemy.text(
+            """
+            SELECT total_spots, min_age, start_time, end_time
+            FROM events
+            """))
+    r1 = event.first()
+    cur_spots = r1.total_spots
+    min_age = r1.min_age
+    start_time = r1.start_time
+    end_time = r1.end_time
+    # need to add a check for timing, how?
+    # TODO: DON'T ADD SAME EVENT TWICE
+
+>>>>>>> cfe1218f46e1872daa01609839ef3a2759721de1
     with db.engine.begin() as connection:
         volunteer = connection.execute(sqlalchemy.text(
             """
@@ -114,8 +131,10 @@ def add_schedule_item(volunteer_id: int, event_id: int):
 # need to descrease number of spots in events table
 # ANANYA
 @router.post("/{volunteer_id}/register")
-def register_event(volunteer_id: int):
+def total_registered_events(volunteer_id: int): # total_registered_event title changed
     """ """
+    # TODO: what happens if they aren't registered for any events?
+
     total_events_registered = 0
     total_hours = 0
     with db.engine.begin() as connection:   
@@ -135,6 +154,8 @@ def register_event(volunteer_id: int):
 @router.post("/{volunteer_id}/remove")
 def remove_schedule_item(volunteer_id: int, event_id: int):
     """ """
+    # TODO: only return "OK" if sucessfully deleted otherwise raise Exception
+
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(
             """
