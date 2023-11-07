@@ -13,8 +13,7 @@ router = APIRouter(
 @router.post("/reset")
 def reset():
     """
-    Reset the game state. Gold goes to 100, all potions are removed from
-    inventory, and all barrels are removed from inventory. Carts are all reset.
+    Resets the site.
     """
     with db.engine.begin() as connection:
         # Drop existing tables
@@ -22,7 +21,7 @@ def reset():
             """
             TRUNCATE TABLE organizations
             RESTART IDENTITY
-            CASCADE
+            CASCADE;
 
             TRUNCATE TABLE volunteers
             RESTART IDENTITY
