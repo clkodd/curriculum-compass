@@ -59,7 +59,6 @@ curl -X 'POST' \
   "volunteer_name": "Roxanne",
   "city": "Anaheim",
   "age": "17",
-  "phone_number": "6789998212",
   "email": "roxanne@anaheimhigh.edu"
 }'
 ```
