@@ -14,7 +14,7 @@ router = APIRouter(
 class NewVolunteer(BaseModel):
     volunteer_name: str
     city: str
-    age: str
+    age: int
     email: str
 
 @router.post("/")
@@ -136,7 +136,7 @@ def remove_schedule_item(volunteer_id: int, event_id: int):
         result = connection.execute(sqlalchemy.text(
             """
             DELETE FROM volunteer_schedule
-            WHERE volunteer_schedule.event_id = event_id AND volunteer_schedule.volunteer_id = volunteer_id
+            WHERE volunteer_schedule.event_id = :event_id AND volunteer_schedule.volunteer_id = :volunteer_id
             """),
             [{"event_id": event_id, "volunteer_id": volunteer_id}])
     if result != None:
