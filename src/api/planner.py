@@ -128,8 +128,9 @@ def delete_event(event_id: int):
         """
         ),{"event_id":event_id})
     if result != None:
-        return "OK"
+        return "Deleted event: " + str(event_id)
     else:
-        raise Exception("Invalid removing of event")
+        error_message = "Invalid removing of event"
+        raise HTTPException(status_code=400, detail=error_message)
 
 
