@@ -51,7 +51,7 @@ def new_organizations(new_organization: NewOrganization):
         error_message = "Invalid creating of organizer"
         raise HTTPException(status_code=400, detail=error_message)
     
-@router.post("/edit")
+@router.post("/{organization_id}/edit")
 def edit_organization(organization_id: int, name: str = None, city: str = None):
     """ 
     """
@@ -66,6 +66,7 @@ def edit_organization(organization_id: int, name: str = None, city: str = None):
     
     set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
 
+# ! CHECK IF THIS IS BAD AND HOW TO FIX FOR SQL INJECTIONS
     with db.engine.begin() as connection:
         org_id = connection.execute(sqlalchemy.text(
             f"""
@@ -107,6 +108,36 @@ def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
         error_message = "Invalid creating of supervisor"
         raise HTTPException(status_code=400, detail=error_message)
     
-@router.post("/supervisor/edit")
-def edit_supervisor(new_organization: NewOrganization):
+@router.post("/supervisor/{supervisor_id}/edit")
+def edit_supervisor(supervisor_id: int, organization_id: int = None, supervisor_name: str = None, email: str = None):
     """ """
+    set_clause = {}
+    if organization_id != None:
+        set_clause["org_id"] = organization_id
+    if supervisor_name != None:
+        set_clause["sup_name"] = supervisor_name
+    if email != None:
+        set_clause["email"] = email
+    if organization_id == None and supervisor_name == None and email == None:
+        error_message = "No information to edit supervisor"
+        raise HTTPException(status_code=400, detail=error_message)
+    
+    set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
+
+# ! CHECK IF THIS IS BAD AND HOW TO FIX FOR SQL INJECTIONS
+    with db.engine.begin() as connection:
+        sup_id = connection.execute(sqlalchemy.text(
+            f"""
+                UPDATE supervisors
+                SET {set_clause_sql}
+                WHERE sup_id = :supervisor_id
+                RETURNING sup_id
+            """
+        ), {"supervisor_id": supervisor_id, **set_clause}).scalar()
+
+    if sup_id != None:
+        set_clause["sup_id"] = sup_id
+        return set_clause
+    else:
+        error_message = "Invalid editing of supervisor"
+        raise HTTPException(status_code=400, detail=error_message)
