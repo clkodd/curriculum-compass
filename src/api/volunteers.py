@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from src.api import auth
 import sqlalchemy
-from datetime import datetime
+from datetime import date
 from src import database as db
+
 
 router = APIRouter(
     prefix="/volunteers",
@@ -14,29 +15,54 @@ router = APIRouter(
 class NewVolunteer(BaseModel):
     volunteer_name: str
     city: str
-    age: str
     email: str
+    birthday: date
 
 @router.post("/")
 def new_volunteers(new_volunteer: NewVolunteer):
-    """ """
-    #maybe create a schedule_id here as well that can be passed into the next function?
+    """Create a new volunteer."""
     with db.engine.begin() as connection:
-        volunteer_id = connection.execute(sqlalchemy.text(
+        result = connection.execute(sqlalchemy.text(
             """
-                INSERT INTO volunteers (name, city, age, email)
-                VALUES (:volunteer_name, :city, :age, :email)
-                RETURNING volunteer_id
+            INSERT INTO volunteers (name, city, age, email)
+            VALUES (:volunteer_name, :city, :age, :email)
+            ON CONFLICT (email) DO NOTHING
+            RETURNING volunteer_id
             """
-        ), [{"volunteer_name": new_volunteer.volunteer_name, 
-             "city": new_volunteer.city, 
+        ), {
+            "volunteer_name": new_volunteer.volunteer_name,
+            "city": new_volunteer.city,
             "age": new_volunteer.age,
-            "email": new_volunteer.email}]).scalar()
+            "email": new_volunteer.email
+        })
+        volunteer_id = result.scalar()
 
-    if volunteer_id != None:
+    if volunteer_id is not None:
         return {"volunteer_id": volunteer_id}
     else:
-        raise Exception("Invalid creation of volunteer")
+        error_message = "User with this email already exists"
+        raise HTTPException(status_code=400, detail=error_message)
+
+
+@router.post("/{volunteer_id}/update")
+def update_volunteer_info(volunteer_id: int, new_volunteer: NewVolunteer):
+    """Update volunteer information."""
+    with db.engine.begin() as connection:
+        connection.execute(sqlalchemy.text(
+            """
+            UPDATE volunteers
+            SET name = :volunteer_name, city = :city, age = :age, email = :email
+            WHERE volunteer_id = :volunteer_id
+            """
+        ), {
+            "volunteer_id": volunteer_id,
+            "volunteer_name": new_volunteer.volunteer_name,
+            "city": new_volunteer.city,
+            "age": new_volunteer.age,
+            "email": new_volunteer.email
+        })
+    return "OK"
+
 
 @router.post("/events/{event_id}")
 def add_schedule_item(volunteer_id: int, event_id: int):
@@ -45,13 +71,14 @@ def add_schedule_item(volunteer_id: int, event_id: int):
     with db.engine.begin() as connection:
         volunteer = connection.execute(sqlalchemy.text(
             """
-            SELECT age
+            SELECT date_part('year', current_date) - date_part('year', birthday) AS age
             FROM volunteers
-            """))
-    r2 = volunteer.first()
-    age = r2.age
+            WHERE volunteer_id = :volunteer_id
+            """),
+            {"volunteer_id": volunteer_id})
+        first_row = volunteer.first()
+        age = first_row.age
 
-    with db.engine.begin() as connection:
         existing_event = connection.execute(sqlalchemy.text(
             """
             SELECT volunteer_id
@@ -61,64 +88,61 @@ def add_schedule_item(volunteer_id: int, event_id: int):
             {"volunteer_id": volunteer_id, "event_id": event_id})
 
         if existing_event.first():
-            return "Event already in volunteer's schedule."
-
-    with db.engine.begin() as connection:
+            error_message = "Event already in volunteer's schedule."
+            raise HTTPException(status_code=400, detail=error_message)
+   
         event = connection.execute(sqlalchemy.text(
             """
             SELECT total_spots, min_age, start_time, end_time
             FROM events
             """))
-    event_details = event.first()
-    cur_spots = event_details.total_spots
-    min_age = event_details.min_age
-    start_time = event_details.start_time
-    end_time = event_details.end_time
+        event_details = event.first()
+        cur_spots = event_details.total_spots
+        min_age = event_details.min_age
+        start_time = event_details.start_time
+        end_time = event_details.end_time
     
 
-    if event_details:
-        event_start_time = event_details.start_time
-        event_end_time = event_details.end_time
+        if event_details:
+            event_start_time = event_details.start_time
+            event_end_time = event_details.end_time
 
-        with db.engine.begin() as connection:
-            conflicts = connection.execute(sqlalchemy.text(
-                """
-                SELECT vs.volunteer_id
-                FROM volunteer_schedule vs
-                JOIN events e ON vs.event_id = e.event_id
-                WHERE vs.volunteer_id = :volunteer_id
-                AND (
-                    (e.start_time >= :event_start_time AND e.start_time < :event_end_time)
-                    OR (e.end_time > :event_start_time AND e.end_time <= :event_end_time)
-                )
-                """),
-                {"volunteer_id": volunteer_id, "event_start_time": event_start_time, "event_end_time": event_end_time})
+        conflicts = connection.execute(sqlalchemy.text(
+            """
+            SELECT vs.volunteer_id
+            FROM volunteer_schedule vs
+            JOIN events e ON vs.event_id = e.event_id
+            WHERE vs.volunteer_id = :volunteer_id
+            AND (
+                (e.start_time >= :event_start_time AND e.start_time < :event_end_time)
+                OR (e.end_time > :event_start_time AND e.end_time <= :event_end_time)
+            )
+            """),
+            {"volunteer_id": volunteer_id, "event_start_time": event_start_time, "event_end_time": event_end_time})
 
-            if conflicts.first():
-                    return "Timing conflict"
+        if conflicts.first():
+            error_message = "Timing conflict"
+            raise HTTPException(status_code=400, detail=error_message)
 
-    if cur_spots >= 1 and age >= min_age:
-        with db.engine.begin() as connection:
-            result = connection.execute(sqlalchemy.text(
-                """
-                INSERT INTO volunteer_schedule (volunteer_id, event_id) 
-                VALUES (:volunteer_id, :event_id)
-                """),
-                {"volunteer_id": volunteer_id, "event_id": event_id})
+        connection.execute(sqlalchemy.text(
+            """
+            INSERT INTO volunteer_schedule (volunteer_id, event_id) 
+            VALUES (:volunteer_id, :event_id)
+            """),
+            {"volunteer_id": volunteer_id, "event_id": event_id})
     print("EVENT ADDED: ", event_id, " VOLUNTEER: ", volunteer_id)   
     return "OK"
 
-# need to descrease number of spots in events table
-# ANANYA
-@router.post("/{volunteer_id}/register")
-def register_event(volunteer_id: int):
+
+@router.post("/{volunteer_id}/display_registered_events")
+def display_registered_events(volunteer_id: int):
     """ """
     total_events_registered = 0
     total_hours = 0
     with db.engine.begin() as connection:   
         result = connection.execute(sqlalchemy.text(
                 """
-                SELECT DATE_PART('hour', SUM(end_time - start_time)) AS total_hours, COUNT(events.event_id) AS total_events
+                SELECT COALESCE(DATE_PART('hour', SUM(end_time - start_time)), 0) AS total_hours, COUNT(events.event_id) AS total_events
                 FROM events
                 JOIN volunteer_schedule ON volunteer_schedule.event_id = events.event_id 
                 WHERE volunteer_id = :volunteer_id
@@ -136,7 +160,7 @@ def remove_schedule_item(volunteer_id: int, event_id: int):
         connection.execute(sqlalchemy.text(
             """
             DELETE FROM volunteer_schedule
-            WHERE volunteer_schedule.event_id = event_id AND volunteer_schedule.volunteer_id = volunteer_id
+            WHERE volunteer_schedule.event_id = :event_id AND volunteer_schedule.volunteer_id = :volunteer_id
             """),
             [{"event_id": event_id, "volunteer_id": volunteer_id}])
     return "OK"
