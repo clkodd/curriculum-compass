@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from src.api import auth
 import sqlalchemy
 from datetime import date
@@ -15,12 +15,15 @@ router = APIRouter(
 class NewVolunteer(BaseModel):
     volunteer_name: str
     city: str
-    email: str
+    email: EmailStr
     birthday: date
 
 @router.post("/")
 def new_volunteers(new_volunteer: NewVolunteer):
     """Create a new volunteer."""
+
+    # Validate the email format
+    email = new_volunteer.email
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
@@ -33,7 +36,7 @@ def new_volunteers(new_volunteer: NewVolunteer):
             "volunteer_name": new_volunteer.volunteer_name,
             "city": new_volunteer.city,
             "birthday": new_volunteer.birthday,
-            "email": new_volunteer.email
+            "email": email
         })
         volunteer_id = result.scalar()
 
