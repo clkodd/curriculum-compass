@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
-from src.api import auth
+from src.api import auth, planner
 import sqlalchemy
-from datetime import date
+from datetime import date, datetime
 from src import database as db
-
+from typing import List
 
 router = APIRouter(
     prefix="/volunteers",
@@ -179,3 +179,36 @@ def remove_schedule_item(volunteer_id: int, event_id: int):
             """),
             [{"event_id": event_id, "volunteer_id": volunteer_id}])
     return "OK"
+
+@router.get("/{volunteer_id}/events")
+def get_volunteer_events(volunteer_id: int):
+    """Get the events for a volunteer."""
+    
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            """
+            SELECT name, total_spots, location, activity_level, start_time, end_time, description
+            FROM events
+            JOIN volunteer_schedule ON volunteer_schedule.event_id = events.event_id
+            WHERE volunteer_schedule.volunteer_id = :volunteer_id
+            """
+        ), {"volunteer_id": volunteer_id})
+
+        volunteer_events = result.fetchall()
+
+    if not volunteer_events:
+        raise HTTPException(status_code=404, detail="No events found for the volunteer")
+
+    schedule = []
+    for ve in volunteer_events:
+        schedule.append(
+            {
+                "name": ve.name,
+                "total spots": ve.total_spots,
+                "location": ve.location, 
+                "activity_level": ve.activity_level,
+                "start_time": ve.start_time,
+                "end_time": ve.end_time,
+                "description": ve.description,
+            })
+    return schedule
