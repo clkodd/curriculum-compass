@@ -24,15 +24,15 @@ def new_volunteers(new_volunteer: NewVolunteer):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
-            INSERT INTO volunteers (name, city, age, email)
-            VALUES (:volunteer_name, :city, :age, :email)
+            INSERT INTO volunteers (name, city, birthday, email)
+            VALUES (:volunteer_name, :city, :birthday, :email)
             ON CONFLICT (email) DO NOTHING
             RETURNING volunteer_id
             """
         ), {
             "volunteer_name": new_volunteer.volunteer_name,
             "city": new_volunteer.city,
-            "age": new_volunteer.age,
+            "birthday": new_volunteer.birthday,
             "email": new_volunteer.email
         })
         volunteer_id = result.scalar()
@@ -51,14 +51,14 @@ def update_volunteer_info(volunteer_id: int, new_volunteer: NewVolunteer):
         connection.execute(sqlalchemy.text(
             """
             UPDATE volunteers
-            SET name = :volunteer_name, city = :city, age = :age, email = :email
+            SET name = :volunteer_name, city = :city, birthday = :birthday, email = :email
             WHERE volunteer_id = :volunteer_id
             """
         ), {
             "volunteer_id": volunteer_id,
             "volunteer_name": new_volunteer.volunteer_name,
             "city": new_volunteer.city,
-            "age": new_volunteer.age,
+            "birthday": new_volunteer.birthday,
             "email": new_volunteer.email
         })
     return "OK"
