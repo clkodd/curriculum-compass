@@ -24,6 +24,18 @@ def new_volunteers(new_volunteer: NewVolunteer):
 
     # Validate the email format
     email = new_volunteer.email
+
+    #validate age
+    today = date.today()
+    age = today.year - new_volunteer.birthday.year - ((today.month, today.day) < (new_volunteer.birthday.month, new_volunteer.birthday.day))
+    
+    min_age = 13
+    max_age = 99
+
+    if not (min_age <= age <= max_age):
+        error_message = "Invalid Age"
+        raise HTTPException(status_code=400, detail=error_message)
+
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text(
             """
