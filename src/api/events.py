@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 @router.get("/")
-def get_events():
+def search():
     """ 
     Retreives the list of available events.
     """
@@ -25,7 +25,7 @@ def get_events():
                 SELECT events.event_id, events.name, (events.total_spots - COUNT(volunteer_schedule.event_id)) AS spots_left, 
                 events.min_age, events.activity_level, events.location, events.start_time, events.end_time, events.description
                 FROM events
-                FULL OUTER JOIN volunteer_schedule
+                INNER JOIN volunteer_schedule
                 ON events.event_id = volunteer_schedule.event_id
                 GROUP BY events.event_id
                 HAVING (events.total_spots - COUNT(volunteer_schedule.event_id)) > 0
@@ -50,5 +50,6 @@ def get_events():
                     "description": row.description,
                 }
             )
-
-    return event_list
+    if event_list:
+        return event_list
+    return {"message": "No events available at the moment."}
