@@ -1,7 +1,7 @@
 from fastapi import FastAPI, exceptions
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
-from src.api import volunteers, events, planner, organizations
+from src.api import volunteers, events, planner, organizations, admin
 import json
 import logging
 import sys
@@ -25,6 +25,7 @@ app.include_router(volunteers.router)
 app.include_router(events.router)
 app.include_router(planner.router)
 app.include_router(organizations.router)
+app.include_router(admin.router)
 
 @app.exception_handler(exceptions.RequestValidationError)
 @app.exception_handler(ValidationError)

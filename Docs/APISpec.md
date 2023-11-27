@@ -4,9 +4,9 @@
 
 The API calls are made in this sequence when registering for events:
 1. `Get Events`
-2. `Create new schedule for a volunteer`
-3. `Add an event to schedule` (Can be called multiple times)
-4. `Register for Events`
+2. `New Volunteer`
+3. `Add an event to Volunteer's Schedule` (Can be called multiple times)
+4. `Registered Events`
 
 An event can be removed from a schedule with the following API call:
 
@@ -14,7 +14,7 @@ An event can be removed from a schedule with the following API call:
 
 ### 1.1. Get Events - `/events/` (GET)
 
-Retreives the list of available events. 
+Retrieves the list of available events. 
 
 **Returns**:
 
@@ -34,7 +34,7 @@ Retreives the list of available events.
 ]
 ```
 
-### 1.2. New Schedule - `/volunteers/` (POST)
+### 1.2. New Volunteer - `/volunteers/` (POST)
 
 Creates a new volunteer.
 
@@ -45,7 +45,6 @@ Creates a new volunteer.
     "volunteer_name": "string",
 	"city_name": "string", 
 	"age": "int",
-	"phone_number": "int",
 	"email": "string",
 }
 
@@ -61,7 +60,7 @@ Creates a new volunteer.
 
 ### 1.3. Add Event to Schedule - `/volunteers/events/{event_id}` (POST)
 
-Adds a specific event to a schedule.
+Adds a specific event to a schedule. Checking for time, age conflicts, and duplicate events. 
 
 **Returns**: 
 
@@ -71,9 +70,9 @@ Adds a specific event to a schedule.
 }
 ```
 
-### 1.4. Register for Events - `/volunteers/{volunteer_id}/register` (POST)
+### 1.4. Registered Events - `/volunteers/{volunteer_id}/register` (POST)
 
-Handles the registration process for a specific schedule.
+Takes the total sum of events and hours completed overall for a volunteer.
 
 **Request**:
 
@@ -108,36 +107,23 @@ Removes an event from a volunteer's schedule.
 
 ```json
 {
-    "schedule_id": "integer"
+    "confirm": "boolean"
 }
 ```
 
 ## 2. Event Creating
 
 The API calls are made in this sequence when creating events:
-1. `New Event`
-2. `Get Event Plan`
-3. `Post Events`
+1. `Create Event`
 
 An event can be deleted with the following API calls:
 
-4. `Delete Event`
+2. `Delete Event`
 
-### 2.1. New Event - `/event-planner/create` (POST)
 
-Creates a new event. 
+### 2.1 Create Event - `/event-planner/{event_id}/{event_organizer_id}` (POST)
 
-**Returns**:
-
-```json
-{
-    "event_id": "integer" /* Used in future calls to modify the event */
-}
-```
-
-### 2.2. Get Event Plan - `/event-planner/{event_id}/{event_organizer_id}` (POST)
-
-Adds event traits to the specified event, using the event's ID.
+Create a volunteer event. 
 
 **Request**:
 
@@ -158,14 +144,14 @@ Adds event traits to the specified event, using the event's ID.
 
 ```json
 {
-    "success": "boolean"
+    "event_id": "int"
 }
 ```
 
 
-### 2.3. Delete Event - `/event-planner/{event_id}/delete` (POST)
+### 2.2. Delete Event - `/event-planner/{event_id}/delete` (POST)
 
-Removes an event from a volunteer's schedule.
+Removes an event from the events table. In turn also deletes all references to that event_id removing event from volunteer table.
 
  **Request**:
 
@@ -187,11 +173,11 @@ Removes an event from a volunteer's schedule.
 
 ### 3.1. Reset Site - `/admin/reset` (POST)
 
-Deletes all events and schedules. 
+Deletes all organizations and volunteers. 
 
 ### 3.2. Organizations Info - `/admin/organizations` (GET)
 
-Returns a list of all verified volunteer organizations with active events scheduled.
+Returns a list of all volunteer organizations with active events scheduled.
 
 **Returns**: 
 
@@ -202,3 +188,51 @@ Returns a list of all verified volunteer organizations with active events schedu
     }
 ]
 ```
+
+## 4. Organization Functions
+
+### 4.1. Create Organization `/organization/` (POST)
+
+Creates a new organization.
+
+**Request**: 
+
+```json
+{
+    "name": "string",
+	"city": "string", 
+}
+
+```
+
+**Returns**: 
+
+```json
+{
+      "org_id": "int"
+}
+```
+
+
+### 4.2. Create Supervisor `/organization/{org_id}/supervisor` (POST)
+
+Creates a new supervisor.
+
+**Request**: 
+
+```json
+{
+    	"sup_name": "string",
+	"email": "string",
+}
+
+```
+
+**Returns**: 
+
+```json
+{
+      "sup_id": "int"
+}
+```
+
