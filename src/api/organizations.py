@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from src.api import auth
 import sqlalchemy
 from src import database as db
@@ -65,7 +65,6 @@ def edit_organization(organization_id: int, name: str = None, city: str = None):
     
     set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
 
-# ! CHECK IF THIS IS BAD AND HOW TO FIX FOR SQL INJECTIONS
     with db.engine.begin() as connection:
         org_id = connection.execute(sqlalchemy.text(
             f"""
@@ -85,7 +84,7 @@ def edit_organization(organization_id: int, name: str = None, city: str = None):
 
 class NewSupervisor(BaseModel):
     sup_name: str
-    email: str
+    email: EmailStr
 
 @router.post("/{org_id}/supervisor")
 def new_supervisors(org_id: int, new_supervisor: NewSupervisor):

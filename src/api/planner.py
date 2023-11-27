@@ -15,8 +15,11 @@ router = APIRouter(
 
 class activity_level_options(str, Enum):
     low = "low"
+    low_med = "low_med"
     medium = "medium"
+    med_high = "med_high"
     high = "high"
+    extreme = "extreme"
 
 class NewEvent(BaseModel):
     name: str
@@ -33,7 +36,7 @@ def create_event(supervisor_id: int, new_event: NewEvent, activity_level: activi
     """ 
     Create event based on a supervisor_id.
     """
-    activity_level_scale = {"low": 1, "medium": 2, "high": 3}
+    activity_level_scale = {"low": 0, "low_med": 1, "medium": 2, "med_high": 3, "high": 4, "extreme": 5}
 
     if new_event.total_spots < 1:
         error_message = "Invalid event details; total_spots must be at least 1"
