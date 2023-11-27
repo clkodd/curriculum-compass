@@ -108,11 +108,14 @@ def add_schedule_item(volunteer_id: int, event_id: int):
    
         event = connection.execute(sqlalchemy.text(
             """
-            SELECT min_age, start_time, end_time
+            SELECT min_age, total_spots, start_time, end_time
             FROM events
-            """))
+            WHERE event_id = :event_id
+            """),
+            {"event_id": event_id})
         event_details = event.first()
         min_age = event_details.min_age
+        tot_spots = event_details.total_spots
 
         if age < min_age:
             error_message = "Not old enough to sign up for this event"
@@ -121,6 +124,22 @@ def add_schedule_item(volunteer_id: int, event_id: int):
         if event_details:
             event_start_time = event_details.start_time
             event_end_time = event_details.end_time
+
+        spots_filled = connection.execute(sqlalchemy.text(
+            """
+            SELECT COUNT(*) AS spots
+            FROM volunteer_schedule
+            WHERE event_id = :event_id
+            """
+        ),
+            {"event_id": event_id})
+        first_row = spots_filled.first()
+        spots = first_row.spots  
+        print(spots)
+        print(tot_spots)
+        if spots >= tot_spots:
+            error_message = "The spots for this event are already full"
+            raise HTTPException(status_code=400, detail=error_message)
 
         conflicts = connection.execute(sqlalchemy.text(
             """

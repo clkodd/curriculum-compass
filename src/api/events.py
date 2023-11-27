@@ -46,7 +46,7 @@ def search(
         organization: str = "",
         min_age: int = 0,
         spots_left: int = 1,
-        activity_level: activity_level = activity_level.low,
+        activity_level: activity_level_options = activity_level_options.low,
         location: str = "",
         event_name: str = "",
         supervisor_email: str = "",
