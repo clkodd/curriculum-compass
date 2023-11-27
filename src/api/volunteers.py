@@ -168,7 +168,7 @@ def display_registered_events(volunteer_id: int):
         total_events_registered = first_row.total_events
     return {"total_events_registered": total_events_registered, "total_hours": total_hours}
 
-@router.post("/{volunteer_id}/remove")
+@router.delete("/{volunteer_id}/remove")
 def remove_schedule_item(volunteer_id: int, event_id: int):
     """ """
     with db.engine.begin() as connection:
