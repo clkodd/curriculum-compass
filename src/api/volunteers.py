@@ -114,7 +114,7 @@ def add_schedule_item(volunteer_id: int, event_id: int):
         event_details = event.first()
         min_age = event_details.min_age
 
-        if age < min_age:
+        if age <= min_age:
             error_message = "Not old enough to sign up for this event"
             raise HTTPException(status_code=400, detail=error_message)
 
