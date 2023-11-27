@@ -21,7 +21,6 @@ create table
     created_at timestamp with time zone not null default now(),
     name text not null,
     city text not null,
-    verified boolean not null,
     constraint organizations_pkey primary key (org_id),
     constraint organizations_name_key unique (name),
     constraint organizations_org_id_key unique (org_id)
