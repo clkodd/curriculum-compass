@@ -12,7 +12,7 @@ An event can be removed from a schedule with the following API call:
 
 5. `Remove Event from Schedule`
 
-### 1.1. Get Events - `/events/` (GET)
+### 1.1. search - `/events/` (GET)
 
 Retrieves the list of available events. 
 
@@ -22,12 +22,14 @@ Retrieves the list of available events.
 [
     {
         "event_id": "integer",
-        "name": "string", 
+	"organization_name": "string,
+        "name": "string",
+	"supervisor_email": "string",
         "spots_left": "integer",
         "minimum_age": "integer",
         "activity_level": "integer", /* Between 1 and 3, 3 being the highest */
         "location": "string", /* A city name */
-        "start_time": "datetime",
+        "start_date": "datetime",
         "end_time": "datetime",
         "description": "string"
     }
