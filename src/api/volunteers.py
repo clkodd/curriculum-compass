@@ -108,15 +108,10 @@ def add_schedule_item(volunteer_id: int, event_id: int):
    
         event = connection.execute(sqlalchemy.text(
             """
-            SELECT total_spots, min_age, start_time, end_time
+            SELECT start_time, end_time
             FROM events
             """))
         event_details = event.first()
-        cur_spots = event_details.total_spots
-        min_age = event_details.min_age
-        start_time = event_details.start_time
-        end_time = event_details.end_time
-    
 
         if event_details:
             event_start_time = event_details.start_time
