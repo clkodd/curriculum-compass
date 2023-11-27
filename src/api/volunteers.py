@@ -92,8 +92,6 @@ def add_schedule_item(volunteer_id: int, event_id: int):
             """),
             {"volunteer_id": volunteer_id})
         first_row = volunteer.first()
-        age = first_row.age
-
         existing_event = connection.execute(sqlalchemy.text(
             """
             SELECT volunteer_id
