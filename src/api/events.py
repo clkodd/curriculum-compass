@@ -76,7 +76,7 @@ def search(
             FROM o1
             INNER JOIN supervisors ON supervisors.sup_id = o1.sup_id
             INNER JOIN organizations ON organizations.org_id = supervisors.org_id
-            WHERE TRUE
+            WHERE o1.start_time > now()
         """
 
         inp = {"spots_left": spots_left}
