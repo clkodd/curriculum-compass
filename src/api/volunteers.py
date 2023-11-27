@@ -92,6 +92,8 @@ def add_schedule_item(volunteer_id: int, event_id: int):
             """),
             {"volunteer_id": volunteer_id})
         first_row = volunteer.first()
+        age = first_row.age
+
         existing_event = connection.execute(sqlalchemy.text(
             """
             SELECT volunteer_id
@@ -106,10 +108,15 @@ def add_schedule_item(volunteer_id: int, event_id: int):
    
         event = connection.execute(sqlalchemy.text(
             """
-            SELECT start_time, end_time
+            SELECT min_age, start_time, end_time
             FROM events
             """))
         event_details = event.first()
+        min_age = event_details.min_age
+
+        if age < min_age:
+            error_message = "Not old enough to sign up for this event"
+            raise HTTPException(status_code=400, detail=error_message)
 
         if event_details:
             event_start_time = event_details.start_time
