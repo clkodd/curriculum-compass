@@ -13,7 +13,7 @@ router = APIRouter(
 class NewOrganization(BaseModel):
     name: str
     city: str
-    verified: bool
+
 
 @router.post("/")
 def new_organizations(new_organization: NewOrganization):
@@ -21,13 +21,12 @@ def new_organizations(new_organization: NewOrganization):
     with db.engine.begin() as connection:
         org_id = connection.execute(sqlalchemy.text(
             """
-                INSERT INTO organizations (name, city, verified)
-                VALUES (:name, :city, :verified)
+                INSERT INTO organizations (name, city)
+                VALUES (:name, :city)
                 RETURNING org_id
             """
         ), [{"name": new_organization.name, 
-             "city": new_organization.city, 
-             "verified": new_organization.verified}]).scalar()
+             "city": new_organization.city}]).scalar()
 
     if org_id != None:
         return {"org_id": org_id}

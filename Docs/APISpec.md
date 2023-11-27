@@ -177,7 +177,7 @@ Deletes all organizations and volunteers.
 
 ### 3.2. Organizations Info - `/admin/organizations` (GET)
 
-Returns a list of all verified volunteer organizations with active events scheduled.
+Returns a list of all volunteer organizations with active events scheduled.
 
 **Returns**: 
 
@@ -199,9 +199,8 @@ Creates a new organization.
 
 ```json
 {
-    	"name": "string",
+    "name": "string",
 	"city": "string", 
-	"verified": "bool",
 }
 
 ```

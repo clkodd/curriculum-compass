@@ -40,7 +40,6 @@ def get_organization_info():
     sql = """
     SELECT o.name
     FROM organizations AS o
-    WHERE o.verified = TRUE
     """
     res = []
     with db.engine.begin() as connection:

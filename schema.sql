@@ -69,8 +69,8 @@ TRUNCATE TABLE volunteers
 RESTART IDENTITY
 CASCADE;
 
-INSERT INTO organizations (name, city, verified)
-VALUES ('Generic Helper Nonprofit', 'Los Angeles', TRUE);
+INSERT INTO organizations (name, city)
+VALUES ('Generic Helper Nonprofit', 'Los Angeles');
 
 INSERT INTO supervisors (org_id, sup_name, email)
 VALUES (1, 'Michael Scott', 'mscott@dundermifflin.com');
@@ -90,8 +90,8 @@ TRUNCATE TABLE volunteers
 RESTART IDENTITY
 CASCADE;
 
-INSERT INTO organizations (name, city, verified)
-VALUES ('Midnight Mission', 'Los Angeles', TRUE);
+INSERT INTO organizations (name, city)
+VALUES ('Midnight Mission', 'Los Angeles');
 
 INSERT INTO supervisors (org_id, sup_name, email)
 VALUES (1, 'Ronnie Badonnie', 'ronnieb@midnightmish.com');
@@ -107,8 +107,8 @@ TRUNCATE TABLE volunteers
 RESTART IDENTITY
 CASCADE;
 
-INSERT INTO organizations (name, city, verified)
-VALUES ('Midnight Mission', 'Los Angeles', TRUE);
+INSERT INTO organizations (name, city)
+VALUES ('Midnight Mission', 'Los Angeles');
 
 INSERT INTO supervisors (org_id, sup_name, email)
 VALUES (1, 'Ronnie Badonnie', 'ronnieb@midnightmish.com');
@@ -127,9 +127,9 @@ TRUNCATE TABLE volunteers
 RESTART IDENTITY
 CASCADE;
 
-INSERT INTO organizations (name, city, verified)
-VALUES ('Midnight Mission', 'Los Angeles', TRUE),
-('Generic Helper Nonprofit', 'Los Angeles', TRUE);
+INSERT INTO organizations (name, city)
+VALUES ('Midnight Mission', 'Los Angeles'),
+('Generic Helper Nonprofit', 'Los Angeles');
 
 INSERT INTO supervisors (org_id, sup_name, email)
 VALUES (1, 'Ronnie', 'ronnie@midnightmish.com'),
