@@ -24,7 +24,7 @@ class search_sort_options(str, Enum):
     supervisor_email = "supervisor_email"
     event_name = "event_name"
     
-class activity_level(str, Enum):
+class activity_level_options(str, Enum):
     low = "low"
     low_med = "low_med"
     medium = "medium"
@@ -97,12 +97,12 @@ def search(
 
         if activity_level:
             activity_level_mapping = {
-                search_sort_options.low: 0,
-                search_sort_options.low_med: 1,
-                search_sort_options.medium: 2,
-                search_sort_options.med_high:3,
-                search_sort_options.high: 4,
-                search_sort_options.extreme: 5,
+                activity_level_options.low: 0,
+                activity_level_options.low_med: 1,
+                activity_level_options.medium: 2,
+                activity_level_options.med_high:3,
+                activity_level_options.high: 4,
+                activity_level_options.extreme: 5,
             }
             sql += f" AND o1.activity_level <= {activity_level_mapping[activity_level]}"
 
@@ -119,12 +119,12 @@ def search(
             inp["supervisor_email"] = f"%{supervisor_email}%"
 
         sort_col_mapping = {
-            activity_level.start_date: "o1.start_time",
-            activity_level.organization: "organizations.name",
-            activity_level.min_age: "o1.min_age",
-            activity_level.spots_left: "o1.spots_left",
-            activity_level.activity_level: "events.activity_level",
-            activity_level.location: "events.location",
+            search_sort_options.start_date: "o1.start_time",
+            search_sort_options.organization: "organizations.name",
+            search_sort_options.min_age: "o1.min_age",
+            search_sort_options.spots_left: "o1.spots_left",
+            search_sort_options.activity_level: "events.activity_level",
+            search_sort_options.location: "events.location",
         }
 
         sql += f" ORDER BY {sort_col_mapping[sort_col]} {sort_order.value}"
