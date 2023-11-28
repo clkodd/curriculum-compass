@@ -41,8 +41,8 @@ def create_event(supervisor_id: int, new_event: NewEvent, activity_level: activi
     if new_event.total_spots < 1:
         error_message = "Invalid event details; total_spots must be at least 1"
         raise HTTPException(status_code=400, detail=error_message)
-    if new_event.minimum_age < 5 or new_event.minimum_age > 90:
-        error_message = "Invalid event details; minimum age must be greater than 5 and less than 90"
+    if new_event.minimum_age < 13 or new_event.minimum_age > 99:
+        error_message = "Invalid event details; minimum age must be greater than 12 and less than 100"
         raise HTTPException(status_code=400, detail=error_message)
     if new_event.start_time > new_event.end_time:
         error_message = "Invalid event details; start_time is greater than end_time"
@@ -55,6 +55,21 @@ def create_event(supervisor_id: int, new_event: NewEvent, activity_level: activi
 
 
     with db.engine.begin() as connection:
+        sup_info = connection.execute(sqlalchemy.text(
+            """
+            SELECT sup_name, email
+            FROM supervisors
+            WHERE sup_id = :sup_id
+            """
+        ), {"sup_id": supervisor_id}
+            ).fetchone()
+        
+        print(sup_info)
+        
+        if sup_info == None:
+            error_message = "Invalid supervisor"
+            raise HTTPException(status_code=400, detail=error_message)
+
         find_duplicates = connection.execute(sqlalchemy.text(
             """
             SELECT name, location
@@ -91,14 +106,6 @@ def create_event(supervisor_id: int, new_event: NewEvent, activity_level: activi
             "description": new_event.description}
             ]).scalar()
         
-        sup_info = connection.execute(sqlalchemy.text(
-            """
-            SELECT sup_name, email
-            FROM supervisors
-            WHERE sup_id = :sup_id
-            """
-        ), {"sup_id": supervisor_id}
-            ).fetchone()
 
     if result != None:
         return {"event_id": result, 
