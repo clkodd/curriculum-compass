@@ -25,9 +25,9 @@ Retrieves the list of available events. [COMPLEX Endpoint]
 	"organization_name": "string,
         "name": "string",
 	"supervisor_email": "string",
-        "spots_left": "integer",
+        "total_spots": "integer",
         "minimum_age": "integer",
-        "activity_level": "integer", /* Between 1 and 3, 3 being the highest */
+        "activity_level": "integer", /* Between 0, 1, 2, 3, 4, 5 with 5 being the highest activity level */
         "location": "string", /* A city name */
         "start_date": "datetime",
         "end_time": "datetime",
@@ -44,9 +44,9 @@ Creates a new volunteer.
 
 ```json
 {
-    "volunteer_name": "string",
-	"city_name": "string", 
-	"age": "int",
+    	"volunteer_name": "string",
+	"city": "string", 
+	"birthday": "int",
 	"email": "string",
 }
 
@@ -60,7 +60,32 @@ Creates a new volunteer.
 }
 ```
 
-### 1.3. Add Event to Schedule - `/volunteers/events/{event_id}` (POST)
+### 1.3. Update Volunteer - `/volunteers/{volunteer_id}/update` (POST)
+
+Creates a new volunteer. 
+
+**Request**: 
+
+```json
+{
+	"volunteer_id": "int",
+    	"volunteer_name": "string",
+	"city_name": "string", 
+	"birthday": "int",
+	"email": "string"
+}
+
+```
+
+**Returns**: 
+
+```json
+{
+      "OK"
+}
+```
+
+### 1.4. Add Event to Schedule - `/volunteers/events/{event_id}` (POST)
 
 Adds a specific event to a schedule. Checking for time, age conflicts, and duplicate events. [COMPLEX Endpoint]
 
@@ -72,7 +97,7 @@ Adds a specific event to a schedule. Checking for time, age conflicts, and dupli
 }
 ```
 
-### 1.4. Registered Events - `/volunteers/{volunteer_id}/register` (POST)
+### 1.5. Display Registered Events - `/volunteers/{volunteer_id}/display_registered_events` (POST)
 
 Takes the total sum of events and hours completed overall for a volunteer.
 
@@ -93,7 +118,34 @@ Takes the total sum of events and hours completed overall for a volunteer.
 }
 ```
 
-### 1.5. Remove Event from Schedule - `/schedules/{event_id}/remove` (POST)
+
+### 1.6. Get all Volunteer Events - `/volunteers/{volunteer_id}/events` (POST)
+
+Gets all the events that a specific volunteer is registered for and gives info on each event.
+
+ **Request**:
+
+ ```json
+{
+    "volunteer_id": "int"
+}
+```
+
+**Returns**:
+
+```json
+{
+        "name": "string",
+        "total_spots": "integer",
+        "activity_level": "integer", /* Between 0, 1, 2, 3, 4, 5 with 5 being the highest activity level */
+        "location": "string", /* A city name */
+        "start_date": "datetime",
+        "end_time": "datetime",
+        "description": "string"
+}
+```
+
+### 1.7. Remove Event from Schedule - `/volunteers/{event_id}/remove` (POST)
 
 Removes an event from a volunteer's schedule.
 
