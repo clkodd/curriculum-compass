@@ -14,7 +14,7 @@ An event can be removed from a schedule with the following API call:
 
 ### 1.1. search - `/events/` (GET)
 
-Retrieves the list of available events. 
+Retrieves the list of available events. [COMPLEX Endpoint]
 
 **Returns**:
 
@@ -38,7 +38,7 @@ Retrieves the list of available events.
 
 ### 1.2. New Volunteer - `/volunteers/` (POST)
 
-Creates a new volunteer.
+Creates a new volunteer. 
 
 **Request**: 
 
@@ -62,7 +62,7 @@ Creates a new volunteer.
 
 ### 1.3. Add Event to Schedule - `/volunteers/events/{event_id}` (POST)
 
-Adds a specific event to a schedule. Checking for time, age conflicts, and duplicate events. 
+Adds a specific event to a schedule. Checking for time, age conflicts, and duplicate events. [COMPLEX Endpoint]
 
 **Returns**: 
 
@@ -125,7 +125,7 @@ An event can be deleted with the following API calls:
 
 ### 2.1 Create Event - `/event-planner/{event_id}/{event_organizer_id}` (POST)
 
-Create a volunteer event. 
+Create a volunteer event. [COMPLEX Endpoint]
 
 **Request**:
 
@@ -235,6 +235,59 @@ Creates a new supervisor.
 ```json
 {
       "sup_id": "int"
+}
+```
+
+### 4.3. Edit Organization `/organization/{org_id}/edit` (POST)
+
+Edits existing organization.
+
+**Request**: 
+
+```json
+{
+    	"org_id": "int",
+	"name": "string",
+	"city": "string"
+}
+
+```
+
+**Returns**: 
+
+```json
+{
+	"org_id": "int",
+	"name": "string",
+	"city": "string"
+}
+```
+
+
+### 4.4. Edit Supervisor `/organization/supervisor/{org_id}/edit` (POST)
+
+Edits existing supervisor.
+
+**Request**: 
+
+```json
+{
+    	"sup_id": "int",
+	"org_id": "int",
+	"name": "string",
+	"email": "string"
+}
+
+```
+
+**Returns**: 
+
+```json
+{
+	"sup_id": "int",
+	"org_id": "int",
+	"name": "string",
+	"email": "string"
 }
 ```
 
