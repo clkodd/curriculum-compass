@@ -22,7 +22,7 @@ Retrieves the list of available events. [COMPLEX Endpoint]
 [
     {
         "event_id": "integer",
-	"organization_name": "string,
+	"organization_name": "string",
         "name": "string",
 	"supervisor_email": "string",
         "total_spots": "integer",
