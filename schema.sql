@@ -59,6 +59,8 @@ create table
     constraint volunteers_email_key unique (email)
   ) tablespace pg_default;
 
+CREATE INDEX ON volunteer_schedule (volunteer_id);
+
 /* INSERTS
 -- Flow 1 Inserts: Volunteer Registering for an Event
 TRUNCATE TABLE organizations
