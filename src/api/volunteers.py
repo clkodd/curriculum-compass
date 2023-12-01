@@ -60,22 +60,38 @@ def new_volunteers(new_volunteer: NewVolunteer):
 
 
 @router.post("/{volunteer_id}/update")
-def update_volunteer_info(volunteer_id: int, new_volunteer: NewVolunteer):
+def update_volunteer_info(volunteer_id: int, 
+        volunteer_name: str="",
+        city: str="",
+        email: EmailStr=None,
+        birthday:date=None):
+    set_clause = {}
+
+    if volunteer_name:
+        set_clause["name"] = volunteer_name
+    if city:
+        set_clause["city"] = city
+    if email:
+        set_clause["email"] = email
+    if birthday:
+        set_clause["birthday"] = birthday
+
+    if not set_clause:
+        error_message = "No information to edit volunteer"
+        raise HTTPException(status_code=400, detail=error_message)
+
+    set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
+
     """Update volunteer information."""
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(
-            """
+            f"""
             UPDATE volunteers
-            SET name = :volunteer_name, city = :city, birthday = :birthday, email = :email
+            SET {set_clause_sql}
             WHERE volunteer_id = :volunteer_id
             """
-        ), {
-            "volunteer_id": volunteer_id,
-            "volunteer_name": new_volunteer.volunteer_name,
-            "city": new_volunteer.city,
-            "birthday": new_volunteer.birthday,
-            "email": new_volunteer.email
-        })
+        ), {"volunteer_id": volunteer_id, **set_clause})
+
     return "OK"
 
 
