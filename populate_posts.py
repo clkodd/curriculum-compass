@@ -4,7 +4,7 @@ import dotenv
 import numpy as np
 import math
 import random
-from   faker import Faker
+from faker import Faker
 
 
 def database_connection_url():
@@ -89,10 +89,10 @@ with engine.begin() as conn:
         """))
 
 num_vol_rows = 265500
-num_event_rows = math.ceil(num_vol_rows / 25.9)
-num_org_rows = math.ceil(num_event_rows / 4.3)
-num_sup_rows = math.ceil(num_org_rows * 2.2)
-num_sched_rows = math.ceil(num_vol_rows * 2.7)
+num_event_rows = math.ceil(num_vol_rows / 25.9) # There is 1 event for every 25 volunteers or so
+num_org_rows = math.ceil(num_event_rows / 4.3) # There is 1 organization for every 4 events or so
+num_sup_rows = math.ceil(num_org_rows * 2.2) # There are slightly over 2 supervisors or so for every 1 organization
+num_sched_rows = math.ceil(num_vol_rows * 2.7) #Average volunteer registers for about slightly under 3 events each 
 total_rows = num_vol_rows + num_org_rows + num_sup_rows + num_event_rows + num_sched_rows
 print("\nvolunteers: {}".format(num_vol_rows))
 print("events: {}".format(num_event_rows))
