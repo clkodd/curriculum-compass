@@ -9,7 +9,7 @@
 - There is probably 1 event for every 25 or so volunteers, with the average being slightly under
   - num_event_rows = math.ceil(num_vol_rows / 25.9)
 
-- The median organization probably hosts around 4 events, with the average events per organization being a bit over 4
+- The median organization probably hosts around 4 events, with the average events per organization being a bit under 4
   - num_org_rows = math.ceil(num_event_rows / 4.3)
 
 - The median organization probably has about 2 supervisors on the site, with the average being slightly above 2 supervisors per org
