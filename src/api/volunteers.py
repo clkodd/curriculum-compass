@@ -102,12 +102,17 @@ def add_schedule_item(volunteer_id: int, event_id: int):
     with db.engine.begin() as connection:
         volunteer = connection.execute(sqlalchemy.text(
             """
-            SELECT date_part('year', current_date) - date_part('year', birthday) AS age
+            SELECT volunteer_id, date_part('year', current_date) - date_part('year', birthday) AS age
             FROM volunteers
             WHERE volunteer_id = :volunteer_id
             """),
             {"volunteer_id": volunteer_id})
         first_row = volunteer.first()
+
+        if first_row is None:
+            error_message = "Volunteer Doesn't Exist"
+            raise HTTPException(status_code=400, detail=error_message)
+
         age = first_row.age
 
         existing_event = connection.execute(sqlalchemy.text(
@@ -124,12 +129,17 @@ def add_schedule_item(volunteer_id: int, event_id: int):
    
         event = connection.execute(sqlalchemy.text(
             """
-            SELECT min_age, total_spots, start_time, end_time
+            SELECT event_id, min_age, total_spots, start_time, end_time
             FROM events
             WHERE event_id = :event_id
             """),
             {"event_id": event_id})
         event_details = event.first()
+
+        if event_details is None:
+            error_message = "Event Doesn't Exist"
+            raise HTTPException(status_code=400, detail=error_message)
+
         min_age = event_details.min_age
         tot_spots = event_details.total_spots
 
@@ -211,8 +221,13 @@ def remove_schedule_item(volunteer_id: int, event_id: int):
             """
             DELETE FROM volunteer_schedule
             WHERE volunteer_schedule.event_id = :event_id AND volunteer_schedule.volunteer_id = :volunteer_id
+            RETURNING schedule_id
             """),
-            [{"event_id": event_id, "volunteer_id": volunteer_id}])
+            [{"event_id": event_id, "volunteer_id": volunteer_id}]).scalar()
+        
+        print(result)
+        if result is None:
+            raise HTTPException(status_code=404, detail="Can't delete event")
     return "OK"
 
 @router.get("/{volunteer_id}/events")
