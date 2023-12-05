@@ -77,7 +77,7 @@ def search(
             org_name,
             sup_email
             FROM event_summary
-            WHERE start_time > now() AND spots_left >= 1
+            WHERE start_time > now() AND spots_left >= :spots_left
         """
 
         inp = {"spots_left": spots_left}
@@ -93,7 +93,7 @@ def search(
             inp["organization"] = f"%{organization}%"
 
         if min_age:
-            sql += " AND min_age <= :min_age"
+            sql += " AND min_age >= :min_age"
             inp["min_age"] = min_age
 
         if activity_level:
