@@ -137,9 +137,11 @@ def delete_event(event_id: int):
         """
         DELETE FROM events
         WHERE event_id = :event_id
+        RETURNING event_id
         """
-        ),{"event_id":event_id})
+        ),{"event_id":event_id}).scalar()
         connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
+
     if result != None:
         return "Deleted event: " + str(event_id)
     else:
