@@ -105,7 +105,8 @@ def create_event(supervisor_id: int, new_event: NewEvent, activity_level: activi
             "end_time": new_event.end_time,
             "description": new_event.description}
             ]).scalar()
-        
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
+
 
     if result != None:
         return {"event_id": result, 
@@ -131,12 +132,14 @@ def delete_event(event_id: int):
     Deletes an event.
     """
     with db.engine.begin() as connection:
+
         result = connection.execute(sqlalchemy.text(
         """
         DELETE FROM events
         WHERE event_id = :event_id
         """
         ),{"event_id":event_id})
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
     if result != None:
         return "Deleted event: " + str(event_id)
     else:

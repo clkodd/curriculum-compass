@@ -44,7 +44,7 @@ def search(
         event_id: int = None,
         start_date: date = None,
         organization: str = "",
-        min_age: int = 0,
+        min_age: int = 13,
         spots_left: int = 1,
         activity_level: activity_level_options = activity_level_options.low,
         location: str = "",
@@ -63,36 +63,37 @@ def search(
 
     with db.engine.begin() as connection:
         sql = f"""
-            WITH o1 AS (SELECT events.event_id, events.name, 
-            (events.total_spots - COUNT(volunteer_schedule.event_id)) AS spots_left, 
-            events.min_age, events.activity_level, events.location, events.start_time, 
-            events.end_time, events.description, events.sup_id
-            FROM events
-            LEFT JOIN volunteer_schedule ON events.event_id = volunteer_schedule.event_id
-            GROUP BY events.event_id
-            HAVING (events.total_spots - COUNT(volunteer_schedule.event_id)) >= :spots_left)
-            SELECT o1.event_id, o1.name, organizations.name AS org_name, supervisors.email AS sup_email, o1.spots_left, o1.min_age, 
-            o1.activity_level, o1.location, o1.start_time, o1.end_time, o1.description
-            FROM o1
-            INNER JOIN supervisors ON supervisors.sup_id = o1.sup_id
-            INNER JOIN organizations ON organizations.org_id = supervisors.org_id
-            WHERE o1.start_time > now()
+            SELECT
+            event_id,
+            name,
+            spots_left,
+            min_age,
+            activity_level,
+            location,
+            start_time,
+            end_time,
+            description,
+            sup_id,
+            org_name,
+            sup_email
+            FROM event_summary
+            WHERE start_time > now() AND spots_left >= 1
         """
 
         inp = {"spots_left": spots_left}
         if event_id:
-            sql += " AND o1.event_id = :event_id"
+            sql += " AND event_id = :event_id"
             inp["event_id"] = event_id
         if start_date:
-            sql += " AND o1.start_time::text ILIKE :start_date"
+            sql += " AND start_time::text ILIKE :start_date"
             inp["start_date"] = f"{start_date}%"
 
         if organization:
-            sql += " AND organizations.name ILIKE :organization"
+            sql += " AND org_name ILIKE :organization"
             inp["organization"] = f"%{organization}%"
 
         if min_age:
-            sql += " AND o1.min_age <= :min_age"
+            sql += " AND min_age <= :min_age"
             inp["min_age"] = min_age
 
         if activity_level:
@@ -104,27 +105,27 @@ def search(
                 activity_level_options.high: 4,
                 activity_level_options.extreme: 5,
             }
-            sql += f" AND o1.activity_level <= {activity_level_mapping[activity_level]}"
+            sql += f" AND activity_level <= {activity_level_mapping[activity_level]}"
 
         if location:
-            sql += " AND o1.location ILIKE :location"
+            sql += " AND location ILIKE :location"
             inp["location"] = f"%{location}%"
 
         if event_name:
-            sql += "  AND o1.name ILIKE :event_name"
+            sql += "  AND name ILIKE :event_name"
             inp["event_name"] = f"%{event_name}%"
 
         if supervisor_email:
-            sql += " AND supervisors.email ILIKE :supervisor_email"
+            sql += " AND sup_email ILIKE :supervisor_email"
             inp["supervisor_email"] = f"%{supervisor_email}%"
 
         sort_col_mapping = {
-            search_sort_options.start_date: "o1.start_time",
-            search_sort_options.organization: "organizations.name",
-            search_sort_options.min_age: "o1.min_age",
-            search_sort_options.spots_left: "o1.spots_left",
-            search_sort_options.activity_level: "events.activity_level",
-            search_sort_options.location: "events.location",
+            search_sort_options.start_date: "start_time",
+            search_sort_options.organization: "org_name",
+            search_sort_options.min_age: "min_age",
+            search_sort_options.spots_left: "spots_left",
+            search_sort_options.activity_level: "activity_level",
+            search_sort_options.location: "location",
         }
 
         sql += f" ORDER BY {sort_col_mapping[sort_col]} {sort_order.value}"
