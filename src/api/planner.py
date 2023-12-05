@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from src.api import auth
 import sqlalchemy
 from src import database as db
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 
 
@@ -37,6 +37,10 @@ def create_event(supervisor_id: int, new_event: NewEvent, activity_level: activi
     Create event based on a supervisor_id.
     """
     activity_level_scale = {"low": 0, "low_med": 1, "medium": 2, "med_high": 3, "high": 4, "extreme": 5}
+    target_datetime_utc = new_event.start_time.replace(tzinfo=None)
+
+    # Get the current date and time in UTC
+    current_datetime_utc = datetime.utcnow()
 
     if new_event.total_spots < 1:
         error_message = "Invalid event details; total_spots must be at least 1"
@@ -47,8 +51,13 @@ def create_event(supervisor_id: int, new_event: NewEvent, activity_level: activi
     if new_event.start_time > new_event.end_time:
         error_message = "Invalid event details; start_time is greater than end_time"
         raise HTTPException(status_code=400, detail=error_message)
-    elif (new_event.end_time - new_event.start_time).total_seconds() / 60 < 10:
+    if (new_event.end_time - new_event.start_time).total_seconds() / 60 < 10:
         error_message = "Invalid event details; duration of event must be at least 10 minutes"
+        raise HTTPException(status_code=400, detail=error_message)
+    
+    time_difference = target_datetime_utc - current_datetime_utc
+    if time_difference < timedelta(days=1):
+        error_message = "Invalid event details; start date must be after today " + str(current_datetime_utc)
         raise HTTPException(status_code=400, detail=error_message)
     
     activity_level_scaled = activity_level_scale[activity_level]

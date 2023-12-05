@@ -122,7 +122,6 @@ def edit_supervisor(supervisor_id: int, organization_id: int = None, supervisor_
     
     set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
 
-# ! CHECK IF THIS IS BAD AND HOW TO FIX FOR SQL INJECTIONS
     with db.engine.begin() as connection:
         sup_id = connection.execute(sqlalchemy.text(
             f"""
