@@ -90,6 +90,18 @@ class NewSupervisor(BaseModel):
 def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
     """ """
     with db.engine.begin() as connection:
+        org_id_check = connection.execute(sqlalchemy.text(
+            f"""
+                SELECT org_id
+                FROM organizations
+                WHERE org_id = :organization_id
+            """
+        ), {"organization_id": org_id}).scalar()
+
+        if org_id_check is None:
+            error_message = "Invalid organization"
+            raise HTTPException(status_code=400, detail=error_message)
+
         sup_id = connection.execute(sqlalchemy.text(
             """
                 INSERT INTO supervisors (sup_name, org_id, email)
@@ -123,6 +135,19 @@ def edit_supervisor(supervisor_id: int, organization_id: int = None, supervisor_
     set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
 
     with db.engine.begin() as connection:
+        org_id = connection.execute(sqlalchemy.text(
+            f"""
+                SELECT org_id
+                FROM organizations
+                WHERE org_id = :organization_id
+            """
+        ), {"organization_id": organization_id}).scalar()
+
+        if org_id is None:
+            error_message = "Invalid organization"
+            raise HTTPException(status_code=400, detail=error_message)
+
+
         sup_id = connection.execute(sqlalchemy.text(
             f"""
                 UPDATE supervisors
