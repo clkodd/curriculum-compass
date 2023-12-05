@@ -38,7 +38,7 @@ def reset():
 def get_organization_info():
     """ """
     sql = """
-    SELECT o.name
+    SELECT o.name, o.org_id
     FROM organizations AS o
     """
     res = []
@@ -48,6 +48,7 @@ def get_organization_info():
             sql))
     for row in rows:
         res.append({
+            "organization_id": row.org_id,
             "organization": row.name
         })
     return res
