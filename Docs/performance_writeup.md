@@ -65,11 +65,13 @@ The explain results reveal there is an inefficiency in the query, indicating are
 
 #### Query 1
 ![Events](https://i.imgur.com/ehX1Fbp.png)
+
 The explain results indicate an inefficiency in the query, pinpointing areas that can be optimized. The absence of an ID for the event ID contributes to the sluggish performance, causing a delay of 500 milliseconds. Recognizing this bottleneck, we can enhance the query speed by introducing an index on the event_id column. After indexing, the entire endpoint now executes in 59.77 milliseconds, showcasing an improvement from the initial 600+ milliseconds.
 ![Events with Indexing](https://i.imgur.com/8D9VQ6F.png)
 
 #### Query 2
 ![Events2](https://i.imgur.com/ehX1Fbp.png)
+
 The explain results indicate that adding an index for the volunteer schedule event ID did not yield significant improvements, resulting in only a 20 milliseconds faster execution. Therefore, we decided not to implement this index. 
 
 #### Query 3
