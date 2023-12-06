@@ -56,7 +56,39 @@ Supervisors: 5245 rows
 The slowest endpoints were the event search (`/events`, 641.16 ms), displaying the events a given volunteer registered for (`/volunteers/{volunteer_id}/display_registered_events`, 601.07 ms), and creating a new event (`/planner/{event_organizer_id}/create`, 403.99 ms).
 
 ## Performance Tuning
-### Display Registered Events 
+### /volunteers/{volunteer_id}/display_registered_events
 ![Display Registered Events Explain](https://i.imgur.com/VOSaqdq.png)
 The explain results reveal there is an inefficiency in the query, indicating areas for optimization. The absence of an index on the volunteer_id column suggests that the database engine might perform a full table scan, leading to the slowness. The initial time was over 600 milliseconds which is incredibly slow. Let's optimize it by creating an index on volunteer_schedule(volunteer_id). Through this indexing, we can see that runtime is now much faster at the total time is 1 ms. Now after indexing the entire endpoint runs in 59.77s which is significant improvement from 600+ ms.
 ![Rerunning Display Registered Events with Indexing](https://i.imgur.com/NAbhR5A.png)
+
+### /events/
+
+#### Query 1
+![Events](https://i.imgur.com/ehX1Fbp.png)
+The explain results indicate an inefficiency in the query, pinpointing areas that can be optimized. The absence of an ID for the event ID contributes to the sluggish performance, causing a delay of 500 milliseconds. Recognizing this bottleneck, we can enhance the query speed by introducing an index on the event_id column. After indexing, the entire endpoint now executes in 59.77 milliseconds, showcasing an improvement from the initial 600+ milliseconds.
+![Events with Indexing](https://i.imgur.com/8D9VQ6F.png)
+
+#### Query 2
+![Events2](https://i.imgur.com/ehX1Fbp.png)
+The explain results indicate that adding an index for the volunteer schedule event ID did not yield significant improvements, resulting in only a 20 milliseconds faster execution. Therefore, we decided not to implement this index. 
+
+#### Query 3
+![Events3](https://i.imgur.com/peK426T.png)
+![Events3](https://i.imgur.com/peK426T.png)
+
+### /planner/{event_organizer_id}/create
+#### Query 1
+![create1](https://i.imgur.com/CbYXSmS.png)
+
+#### Query 2
+![create2](https://i.imgur.com/1cnqH6r.png)
+
+#### Query 3
+![create3](https://i.imgur.com/iClKx6n.png)
+
+The explain results indicate an inefficiency in the query execution, therefore there are areas for improvement. Let's increase efficiency by adding an index on events(name).
+
+#### Indexing Added
+![index_added](https://i.imgur.com/L4z3np2.png)
+
+As a result of the indexing, we can cut planning time in half and removed almost 5 milliseconds off execution time.
