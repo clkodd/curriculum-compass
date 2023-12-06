@@ -84,11 +84,24 @@ def update_volunteer_info(volunteer_id: int,
 
     """Update volunteer information."""
     with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            f"""
+            SELECT email
+            FROM volunteers
+            WHERE email = :email
+            """
+        ), {"email": email}).scalar()
+        
+        if result != None:
+            error_message = "Email already exists"
+            raise HTTPException(status_code=400, detail=error_message)
+        
         connection.execute(sqlalchemy.text(
             f"""
             UPDATE volunteers
             SET {set_clause_sql}
             WHERE volunteer_id = :volunteer_id
+            ON CONFLICT (email) DO NOTHING
             """
         ), {"volunteer_id": volunteer_id, **set_clause})
 

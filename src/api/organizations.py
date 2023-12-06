@@ -37,6 +37,7 @@ def new_organizations(new_organization: NewOrganization):
             """
                 INSERT INTO organizations (name, city)
                 VALUES (:name, :city)
+                ON CONFLICT (name) DO NOTHING
                 RETURNING org_id
             """
         ), [{"name": new_organization.name, 
@@ -68,6 +69,18 @@ def edit_organization(organization_id: int, name: str = None, city: str = None):
     set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
 
     with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            f"""
+            SELECT name
+            FROM organizations
+            WHERE name = :name
+            """
+        ), {"name": name}).scalar()
+        
+        if result != None:
+            error_message = "Organization name already exists"
+            raise HTTPException(status_code=400, detail=error_message)
+
         org_id = connection.execute(sqlalchemy.text(
             f"""
                 UPDATE organizations
@@ -108,6 +121,7 @@ def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
             """
                 INSERT INTO supervisors (sup_name, org_id, email)
                 VALUES (:sup_name, :org_id, :email)
+                ON CONFLICT (email) DO NOTHING
                 RETURNING sup_id
             """
         ), [{"sup_name": new_supervisor.sup_name, 
@@ -138,6 +152,18 @@ def edit_supervisor(supervisor_id: int, organization_id: int = None, supervisor_
     set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
 
     with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            f"""
+            SELECT email
+            FROM supervisors
+            WHERE email = :email
+            """
+        ), {"email": email}).scalar()
+        
+        if result != None:
+            error_message = "Email already exists"
+            raise HTTPException(status_code=400, detail=error_message)
+
         org_id = connection.execute(sqlalchemy.text(
             f"""
                 SELECT org_id
