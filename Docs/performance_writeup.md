@@ -56,4 +56,4 @@ Supervisors: 5245 rows
 The slowest endpoints were the event search (`/events`, 641.16 ms), displaying the events a given volunteer registered for (`/volunteers/{volunteer_id}/display_registered_events`, 601.07 ms), and creating a new event (`/planner/{event_organizer_id}/create`, 403.99 ms).
 
 ## Performance Tuning
-![Example Image]([https://example.com/images/example.png](https://imgur.com/a/FKyMm7w)https://imgur.com/a/FKyMm7w)
+![Display Registered Events]([https://example.com/images/example.png](https://imgur.com/a/FKyMm7w)https://imgur.com/a/FKyMm7w)
