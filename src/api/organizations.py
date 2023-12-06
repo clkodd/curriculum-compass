@@ -94,6 +94,7 @@ def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
             """
                 INSERT INTO supervisors (sup_name, org_id, email)
                 VALUES (:sup_name, :org_id, :email)
+                ON CONFLICT (email) DO NOTHING
                 RETURNING sup_id
             """
         ), [{"sup_name": new_supervisor.sup_name, 
@@ -129,6 +130,7 @@ def edit_supervisor(supervisor_id: int, organization_id: int = None, supervisor_
                 UPDATE supervisors
                 SET {set_clause_sql}
                 WHERE sup_id = :supervisor_id
+                ON CONFLICT (email) DO NOTHING
                 RETURNING sup_id
             """
         ), {"supervisor_id": supervisor_id, **set_clause}).scalar()

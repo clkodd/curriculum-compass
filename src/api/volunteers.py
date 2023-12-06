@@ -67,6 +67,7 @@ def update_volunteer_info(volunteer_id: int, new_volunteer: NewVolunteer):
             """
             UPDATE volunteers
             SET name = :volunteer_name, city = :city, birthday = :birthday, email = :email
+            ON CONFLICT (email) DO NOTHING
             WHERE volunteer_id = :volunteer_id
             """
         ), {
