@@ -57,3 +57,4 @@ The slowest endpoints were the event search (`/events`, 641.16 ms), displaying t
 
 ## Performance Tuning
 ![Display Registered Events]([https://example.com/images/example.png](https://imgur.com/a/FKyMm7w)https://imgur.com/a/FKyMm7w)
+The explain results reveal there is an inefficiency in the query, indicating areas for optimization. The absence of an index on the volunteer_id column suggests that the database engine might perform a full table scan, leading to the slowness. The initial time was over 600 milliseconds which is incredibly slow. Let's optimize it by creating an index on volunteer_schedule(volunteer_id). Through this indexing, we can see that runtime is now much faster at the total time is 1 ms. Now after indexing the entire endpoint runs in 59.77s which is significant improvement from 600+ ms.
