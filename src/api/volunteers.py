@@ -87,8 +87,7 @@ def update_volunteer_info(volunteer_id: int,
         connection.execute(sqlalchemy.text(
             f"""
             UPDATE volunteers
-            SET name = :volunteer_name, city = :city, birthday = :birthday, email = :email
-            ON CONFLICT (email) DO NOTHING
+            SET {set_clause_sql}
             WHERE volunteer_id = :volunteer_id
             """
         ), {"volunteer_id": volunteer_id, **set_clause})
