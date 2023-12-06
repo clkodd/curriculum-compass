@@ -78,6 +78,8 @@ The explain results indicate that adding an index for the volunteer schedule eve
 ![Events3](https://i.imgur.com/peK426T.png)
 ![Events3](https://i.imgur.com/peK426T.png)
 
+We added a materialized view to enhance the efficienncy since the indexing didn't yield the efficiency we wanted. A materialized view caches the results each time and we make sure that users don't get stale data by updating the cache every time the reference data is updated.
+
 ### /planner/{event_organizer_id}/create
 #### Query 1
 ![create1](https://i.imgur.com/CbYXSmS.png)
