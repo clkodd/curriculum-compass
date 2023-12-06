@@ -190,6 +190,7 @@ def add_schedule_item(volunteer_id: int, event_id: int):
             VALUES (:volunteer_id, :event_id)
             """),
             {"volunteer_id": volunteer_id, "event_id": event_id})
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
     print("EVENT ADDED: ", event_id, " VOLUNTEER: ", volunteer_id)   
     return "OK"
 

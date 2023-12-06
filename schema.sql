@@ -61,6 +61,46 @@ create table
 
 CREATE INDEX ON volunteer_schedule (volunteer_id);
 
+CREATE MATERIALIZED VIEW event_summary AS
+SELECT
+  events.event_id,
+  events.name,
+  (events.total_spots - COUNT(volunteer_schedule.event_id)) AS spots_left,
+  events.min_age,
+  events.activity_level,
+  events.location,
+  events.start_time,
+  events.end_time,
+  events.description,
+  events.sup_id,
+  organizations.name AS org_name,
+  supervisors.email AS sup_email
+FROM
+  events
+  LEFT JOIN volunteer_schedule ON events.event_id = volunteer_schedule.event_id
+  INNER JOIN supervisors ON supervisors.sup_id = events.sup_id
+  INNER JOIN organizations ON organizations.org_id = supervisors.org_id
+WHERE
+  events.start_time > now()
+GROUP BY
+  events.event_id, organizations.name, supervisors.email
+HAVING
+  (events.total_spots - COUNT(volunteer_schedule.event_id)) >= 1;
+
+  -- Index on events.event_id for the LEFT JOIN
+CREATE INDEX IF NOT EXISTS events_event_id_idx ON events(event_id);
+
+-- Index on volunteer_schedule.event_id for the LEFT JOIN
+CREATE INDEX IF NOT EXISTS volunteer_schedule_event_id_idx ON volunteer_schedule(event_id);
+
+-- Index on supervisors.sup_id for the INNER JOIN
+CREATE INDEX IF NOT EXISTS supervisors_sup_id_idx ON supervisors(sup_id);
+
+-- Index on organizations.org_id for the INNER JOIN
+CREATE INDEX IF NOT EXISTS organizations_org_id_idx ON organizations(org_id);
+
+
+
 /* INSERTS
 -- Flow 1 Inserts: Volunteer Registering for an Event
 TRUNCATE TABLE organizations

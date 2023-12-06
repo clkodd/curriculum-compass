@@ -41,6 +41,8 @@ def new_organizations(new_organization: NewOrganization):
             """
         ), [{"name": new_organization.name, 
              "city": new_organization.city}]).scalar()
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
+
 
     if org_id != None:
         return {"org_id": org_id, 
@@ -111,6 +113,7 @@ def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
         ), [{"sup_name": new_supervisor.sup_name, 
             "org_id": org_id, 
             "email": new_supervisor.email}]).scalar()
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
 
     if sup_id != None:
         return {"sup_id": sup_id}
@@ -156,7 +159,7 @@ def edit_supervisor(supervisor_id: int, organization_id: int = None, supervisor_
                 RETURNING sup_id
             """
         ), {"supervisor_id": supervisor_id, **set_clause}).scalar()
-
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
     if sup_id != None:
         set_clause["sup_id"] = sup_id
         return set_clause

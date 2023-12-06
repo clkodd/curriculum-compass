@@ -105,7 +105,7 @@ def search(
                 activity_level_options.high: 4,
                 activity_level_options.extreme: 5,
             }
-            sql += f" AND activity_level <= {activity_level_mapping[activity_level]}"
+            sql += f" AND activity_level >= {activity_level_mapping[activity_level]}"
 
         if location:
             sql += " AND location ILIKE :location"
