@@ -56,6 +56,6 @@ Supervisors: 5245 rows
 The slowest endpoints were the event search (`/events`, 641.16 ms), displaying the events a given volunteer registered for (`/volunteers/{volunteer_id}/display_registered_events`, 601.07 ms), and creating a new event (`/planner/{event_organizer_id}/create`, 403.99 ms).
 
 ## Performance Tuning
-!![Image from Imgur](https://imgur.com/VOSaqdq)
+![Image from Imgur](https://imgur.com/VOSaqdq)
 The explain results reveal there is an inefficiency in the query, indicating areas for optimization. The absence of an index on the volunteer_id column suggests that the database engine might perform a full table scan, leading to the slowness. The initial time was over 600 milliseconds which is incredibly slow. Let's optimize it by creating an index on volunteer_schedule(volunteer_id). Through this indexing, we can see that runtime is now much faster at the total time is 1 ms. Now after indexing the entire endpoint runs in 59.77s which is significant improvement from 600+ ms.
 ![Rerunning Display Registered Events with Indexing](https://drive.google.com/file/d/1ruB33zW5GMyh9CYtNn_ze4bgwhfYvE1D/view?usp=drive_link)
