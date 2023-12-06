@@ -201,6 +201,17 @@ def display_registered_events(volunteer_id: int):
     total_events_registered = 0
     total_hours = 0
     with db.engine.begin() as connection:   
+        result_volunteer = connection.execute(sqlalchemy.text(
+                """
+                SELECT volunteer_id
+                FROM volunteers
+                WHERE volunteer_id = :volunteer_id
+                """), 
+                [{"volunteer_id": volunteer_id}]).scalar()
+
+        if result_volunteer is None:
+            raise HTTPException(status_code=404, detail="User doesn't exist")
+
         result = connection.execute(sqlalchemy.text(
                 """
                 SELECT COALESCE(DATE_PART('hour', SUM(end_time - start_time)), 0) AS total_hours, COUNT(events.event_id) AS total_events
