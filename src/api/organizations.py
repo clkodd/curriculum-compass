@@ -41,6 +41,8 @@ def new_organizations(new_organization: NewOrganization):
             """
         ), [{"name": new_organization.name, 
              "city": new_organization.city}]).scalar()
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
+
 
     if org_id != None:
         return {"org_id": org_id, 
@@ -90,6 +92,18 @@ class NewSupervisor(BaseModel):
 def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
     """ """
     with db.engine.begin() as connection:
+        org_id_check = connection.execute(sqlalchemy.text(
+            f"""
+                SELECT org_id
+                FROM organizations
+                WHERE org_id = :organization_id
+            """
+        ), {"organization_id": org_id}).scalar()
+
+        if org_id_check is None:
+            error_message = "Invalid organization"
+            raise HTTPException(status_code=400, detail=error_message)
+
         sup_id = connection.execute(sqlalchemy.text(
             """
                 INSERT INTO supervisors (sup_name, org_id, email)
@@ -100,6 +114,7 @@ def new_supervisors(org_id: int, new_supervisor: NewSupervisor):
         ), [{"sup_name": new_supervisor.sup_name, 
             "org_id": org_id, 
             "email": new_supervisor.email}]).scalar()
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
 
     if sup_id != None:
         return {"sup_id": sup_id}
@@ -123,8 +138,20 @@ def edit_supervisor(supervisor_id: int, organization_id: int = None, supervisor_
     
     set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
 
-# ! CHECK IF THIS IS BAD AND HOW TO FIX FOR SQL INJECTIONS
     with db.engine.begin() as connection:
+        org_id = connection.execute(sqlalchemy.text(
+            f"""
+                SELECT org_id
+                FROM organizations
+                WHERE org_id = :organization_id
+            """
+        ), {"organization_id": organization_id}).scalar()
+
+        if org_id is None:
+            error_message = "Invalid organization"
+            raise HTTPException(status_code=400, detail=error_message)
+
+
         sup_id = connection.execute(sqlalchemy.text(
             f"""
                 UPDATE supervisors
@@ -134,7 +161,7 @@ def edit_supervisor(supervisor_id: int, organization_id: int = None, supervisor_
                 RETURNING sup_id
             """
         ), {"supervisor_id": supervisor_id, **set_clause}).scalar()
-
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
     if sup_id != None:
         set_clause["sup_id"] = sup_id
         return set_clause

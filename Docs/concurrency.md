@@ -1,34 +1,27 @@
 # Concurrency Control
 
-## Case 1: Non-Repeatable Read When Regstering for Events
+## Case 1: Dirty Read When Viewing Events
 
-In this case, when a user runs `GET /events/`, a list of all the events with at least 1 spot left are displayed. When registering for a specific event, it checks if the event has at least 1 spot left, and then adds the event to the user's schedule and updates the spots left.
+1. Supervisor 1 calls `PUT /planner/1/create` and inserts a new event, Event 66.
+2. Before the `create_event` function is finished executing, Volunteer 2 calls `GET /events/` to see the available events. Event 66 appears on the list.
+3. Supervisor 1 ends up rolling back the `create_event` transaction.
+4. Volunteer 2 calls `POST /schedules/2/events/66` and attempts to register for Event 66, and is denied because Event 66 no longer exists.
 
-1. User 1 runs `GET /events/`. Event 66 has 1 spot left.
-2. User 2 calls `POST /schedules/2/events/66` and registers for Event 66. Event 66 now has 0 spots left.
-3. User 1 calls `POST /schedules/1/events/66` and registers for Event 66. Event 66 now has -1 spots left.
+In our code, we control for this by using the default Postgres isolation level, `READ COMMITTED`. This prevents dirty reads from being performed. 
 
-In our code, we control for this by checking again when registering for an event if there is at least 1 spot left. So, in our code, if User 1 attempts to register for Event 66, the code would reject User 1's registration when it found that there were no spots left for Event 66. 
+## Case 2: Dirty Read When Renaming Organization
 
-## Case 2: Phantom Read When Searching for Events
+1. Supervisor 2 calls `POST /organization/3/edit` and changes their organization's name to something different.
+2. Before the `edit_organization` function is finished executing, Admin 1 calls `GET /admin/organization_info/`, which displays all the organizations including the one with its updated name.
+3. Supervisor 2 was mistaken about the new name and rolls back the `edit_organization` transaction, returning the name of the organization to its original name.
 
-In this case, when a user runs `GET /search/`, a list of all the events that match the provided search criteria are displayed. 
+In our code, we control for this by using the default Postgres isolation level, `READ COMMITTED`. This prevents dirty reads from being performed. 
 
-1. User 1 calls `GET /search/`, filtering for all events taking place in San Luis Obispo, which displays 7 matching rows.
-2. User 2 calls `PUT /planner/2/create` and creates a new event located in San Luis Obispo.
-3. User 1 forgot the event ID of their desired event and calls `GET /search/` again to find it, using the same filtering for all events taking place in San Luis Obispo, but now the query returns 8 matching rows.
+## Case 3: Dirty Read When Registering for Events
 
-This can be controlled for by changing the isolation level of the transaction, from the default `READ COMMITTED` to `SERIALIZABLE`. This is appropriate because it's the only transaction isolation level that prevents phantom reads. 
+1. Volunteer 1 is tired of being discriminated against because of their age (8) and calls `POST /volunteers/1/update` to change their birthday to 7 years later.
+2. Volunteer 1 then registers for an event, calling `POST /volunteers/events/3`, which checks Volunteer 1's age and, seeing they meet the minimum age requirement, adds the event to their schedule.
+3. Before the call to `update_volunteer_info` completes, Volunteer 1 has a change of conscience about trying to scam a volunteer site and rolls back the transaction.
+4. Volunteer 1 is now registered for an event that is above their current age.
 
-## Case 3: 
-
-Write up three cases where your service would encounter phenomenon if it had no concurrency control protection in place. 
-Make a sequence diagram for each case.
-What will you do in your code to ensure isolation of your transactions, and why is that the appropriate case? 
-
-If you believe your transactions don't have any such cases, 
-your transactions either aren't complex enough and you need to build something more interesting 
-or you aren't understanding what issues are occurring. 
-
-Note, this can be both how a particular transaction definition interacts with other transaction definitions, 
-but also how a transaction definition interacts with other concurrent instances of itself. 
+In our code, we control for this by using the default Postgres isolation level, `READ COMMITTED`. This prevents dirty reads from being performed. 

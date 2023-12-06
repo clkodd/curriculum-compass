@@ -14,7 +14,7 @@ An event can be removed from a schedule with the following API call:
 
 ### 1.1. search - `/events/` (GET)
 
-Retrieves the list of available events. 
+Retrieves the list of available events. [COMPLEX Endpoint]
 
 **Returns**:
 
@@ -22,12 +22,12 @@ Retrieves the list of available events.
 [
     {
         "event_id": "integer",
-	"organization_name": "string,
+	"organization_name": "string",
         "name": "string",
 	"supervisor_email": "string",
-        "spots_left": "integer",
+        "total_spots": "integer",
         "minimum_age": "integer",
-        "activity_level": "integer", /* Between 1 and 3, 3 being the highest */
+        "activity_level": "integer", /* Between 0, 1, 2, 3, 4, 5 with 5 being the highest activity level */
         "location": "string", /* A city name */
         "start_date": "datetime",
         "end_time": "datetime",
@@ -38,15 +38,15 @@ Retrieves the list of available events.
 
 ### 1.2. New Volunteer - `/volunteers/` (POST)
 
-Creates a new volunteer.
+Creates a new volunteer. 
 
 **Request**: 
 
 ```json
 {
-    "volunteer_name": "string",
-	"city_name": "string", 
-	"age": "int",
+    	"volunteer_name": "string",
+	"city": "string", 
+	"birthday": "int",
 	"email": "string",
 }
 
@@ -60,9 +60,34 @@ Creates a new volunteer.
 }
 ```
 
-### 1.3. Add Event to Schedule - `/volunteers/events/{event_id}` (POST)
+### 1.3. Update Volunteer - `/volunteers/{volunteer_id}/update` (POST)
 
-Adds a specific event to a schedule. Checking for time, age conflicts, and duplicate events. 
+Creates a new volunteer. 
+
+**Request**: 
+
+```json
+{
+	"volunteer_id": "int",
+    	"volunteer_name": "string",
+	"city_name": "string", 
+	"birthday": "int",
+	"email": "string"
+}
+
+```
+
+**Returns**: 
+
+```json
+{
+      "OK"
+}
+```
+
+### 1.4. Add Event to Schedule - `/volunteers/events/{event_id}` (POST)
+
+Adds a specific event to a schedule. Checking for time, age conflicts, and duplicate events. [COMPLEX Endpoint]
 
 **Returns**: 
 
@@ -72,7 +97,7 @@ Adds a specific event to a schedule. Checking for time, age conflicts, and dupli
 }
 ```
 
-### 1.4. Registered Events - `/volunteers/{volunteer_id}/register` (POST)
+### 1.5. Display Registered Events - `/volunteers/{volunteer_id}/display_registered_events` (POST)
 
 Takes the total sum of events and hours completed overall for a volunteer.
 
@@ -93,7 +118,34 @@ Takes the total sum of events and hours completed overall for a volunteer.
 }
 ```
 
-### 1.5. Remove Event from Schedule - `/schedules/{event_id}/remove` (POST)
+
+### 1.6. Get all Volunteer Events - `/volunteers/{volunteer_id}/events` (POST)
+
+Gets all the events that a specific volunteer is registered for and gives info on each event.
+
+ **Request**:
+
+ ```json
+{
+    "volunteer_id": "int"
+}
+```
+
+**Returns**:
+
+```json
+{
+        "name": "string",
+        "total_spots": "integer",
+        "activity_level": "integer", /* Between 0, 1, 2, 3, 4, 5 with 5 being the highest activity level */
+        "location": "string", /* A city name */
+        "start_date": "datetime",
+        "end_time": "datetime",
+        "description": "string"
+}
+```
+
+### 1.7. Remove Event from Schedule - `/volunteers/{event_id}/remove` (POST)
 
 Removes an event from a volunteer's schedule.
 
@@ -125,7 +177,7 @@ An event can be deleted with the following API calls:
 
 ### 2.1 Create Event - `/event-planner/{event_id}/{event_organizer_id}` (POST)
 
-Create a volunteer event. 
+Create a volunteer event. [COMPLEX Endpoint]
 
 **Request**:
 
@@ -235,6 +287,59 @@ Creates a new supervisor.
 ```json
 {
       "sup_id": "int"
+}
+```
+
+### 4.3. Edit Organization `/organization/{org_id}/edit` (POST)
+
+Edits existing organization.
+
+**Request**: 
+
+```json
+{
+    	"org_id": "int",
+	"name": "string",
+	"city": "string"
+}
+
+```
+
+**Returns**: 
+
+```json
+{
+	"org_id": "int",
+	"name": "string",
+	"city": "string"
+}
+```
+
+
+### 4.4. Edit Supervisor `/organization/supervisor/{org_id}/edit` (POST)
+
+Edits existing supervisor.
+
+**Request**: 
+
+```json
+{
+    	"sup_id": "int",
+	"org_id": "int",
+	"name": "string",
+	"email": "string"
+}
+
+```
+
+**Returns**: 
+
+```json
+{
+	"sup_id": "int",
+	"org_id": "int",
+	"name": "string",
+	"email": "string"
 }
 ```
 

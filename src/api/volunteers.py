@@ -60,23 +60,43 @@ def new_volunteers(new_volunteer: NewVolunteer):
 
 
 @router.post("/{volunteer_id}/update")
-def update_volunteer_info(volunteer_id: int, new_volunteer: NewVolunteer):
+def update_volunteer_info(volunteer_id: int, 
+        volunteer_name: str="",
+        city: str="",
+        email: EmailStr=None,
+        birthday:date=None):
+    set_clause = {}
+
+    if volunteer_name:
+        set_clause["name"] = volunteer_name
+    if city:
+        set_clause["city"] = city
+    if email:
+        set_clause["email"] = email
+    if birthday:
+        set_clause["birthday"] = birthday
+
+    if not set_clause:
+        error_message = "No information to edit volunteer"
+        raise HTTPException(status_code=400, detail=error_message)
+
+    set_clause_sql = ", ".join([f"{key} = :{key}" for key in set_clause.keys()])
+
     """Update volunteer information."""
     with db.engine.begin() as connection:
         connection.execute(sqlalchemy.text(
-            """
+            f"""
             UPDATE volunteers
+<<<<<<< HEAD
             SET name = :volunteer_name, city = :city, birthday = :birthday, email = :email
             ON CONFLICT (email) DO NOTHING
+=======
+            SET {set_clause_sql}
+>>>>>>> de5da2b4e862482059f1ad77448ac3edd701008d
             WHERE volunteer_id = :volunteer_id
             """
-        ), {
-            "volunteer_id": volunteer_id,
-            "volunteer_name": new_volunteer.volunteer_name,
-            "city": new_volunteer.city,
-            "birthday": new_volunteer.birthday,
-            "email": new_volunteer.email
-        })
+        ), {"volunteer_id": volunteer_id, **set_clause})
+
     return "OK"
 
 
@@ -87,12 +107,17 @@ def add_schedule_item(volunteer_id: int, event_id: int):
     with db.engine.begin() as connection:
         volunteer = connection.execute(sqlalchemy.text(
             """
-            SELECT date_part('year', current_date) - date_part('year', birthday) AS age
+            SELECT volunteer_id, date_part('year', current_date) - date_part('year', birthday) AS age
             FROM volunteers
             WHERE volunteer_id = :volunteer_id
             """),
             {"volunteer_id": volunteer_id})
         first_row = volunteer.first()
+
+        if first_row is None:
+            error_message = "Volunteer Doesn't Exist"
+            raise HTTPException(status_code=400, detail=error_message)
+
         age = first_row.age
 
         existing_event = connection.execute(sqlalchemy.text(
@@ -109,12 +134,17 @@ def add_schedule_item(volunteer_id: int, event_id: int):
    
         event = connection.execute(sqlalchemy.text(
             """
-            SELECT min_age, total_spots, start_time, end_time
+            SELECT event_id, min_age, total_spots, start_time, end_time
             FROM events
             WHERE event_id = :event_id
             """),
             {"event_id": event_id})
         event_details = event.first()
+
+        if event_details is None:
+            error_message = "Event Doesn't Exist"
+            raise HTTPException(status_code=400, detail=error_message)
+
         min_age = event_details.min_age
         tot_spots = event_details.total_spots
 
@@ -165,6 +195,7 @@ def add_schedule_item(volunteer_id: int, event_id: int):
             VALUES (:volunteer_id, :event_id)
             """),
             {"volunteer_id": volunteer_id, "event_id": event_id})
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
     print("EVENT ADDED: ", event_id, " VOLUNTEER: ", volunteer_id)   
     return "OK"
 
@@ -175,6 +206,17 @@ def display_registered_events(volunteer_id: int):
     total_events_registered = 0
     total_hours = 0
     with db.engine.begin() as connection:   
+        result_volunteer = connection.execute(sqlalchemy.text(
+                """
+                SELECT volunteer_id
+                FROM volunteers
+                WHERE volunteer_id = :volunteer_id
+                """), 
+                [{"volunteer_id": volunteer_id}]).scalar()
+
+        if result_volunteer is None:
+            raise HTTPException(status_code=404, detail="User doesn't exist")
+
         result = connection.execute(sqlalchemy.text(
                 """
                 SELECT COALESCE(DATE_PART('hour', SUM(end_time - start_time)), 0) AS total_hours, COUNT(events.event_id) AS total_events
@@ -196,8 +238,13 @@ def remove_schedule_item(volunteer_id: int, event_id: int):
             """
             DELETE FROM volunteer_schedule
             WHERE volunteer_schedule.event_id = :event_id AND volunteer_schedule.volunteer_id = :volunteer_id
+            RETURNING schedule_id
             """),
-            [{"event_id": event_id, "volunteer_id": volunteer_id}])
+            [{"event_id": event_id, "volunteer_id": volunteer_id}]).scalar()
+        
+        print(result)
+        if result is None:
+            raise HTTPException(status_code=404, detail="Can't delete event")
     return "OK"
 
 @router.get("/{volunteer_id}/events")
