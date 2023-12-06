@@ -27,9 +27,10 @@ def reset():
             RESTART IDENTITY
             CASCADE
             """))
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
         
     if result != None:
-        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
+        
         return "OK"
     else:
         raise Exception("Invalid removing of schedule")
