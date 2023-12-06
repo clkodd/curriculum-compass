@@ -135,7 +135,7 @@ def create_event(supervisor_id: int, new_event: NewEvent, activity_level: activi
         raise HTTPException(status_code=400, detail=error_message)
 
 
-@router.post("/{event_id}/")
+@router.delete("/{event_id}/")
 def delete_event(event_id: int):
     """ 
     Deletes an event.
