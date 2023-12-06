@@ -29,6 +29,7 @@ def reset():
             """))
         
     if result != None:
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
         return "OK"
     else:
         raise Exception("Invalid removing of schedule")
