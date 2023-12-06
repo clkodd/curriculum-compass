@@ -253,6 +253,7 @@ def remove_schedule_item(volunteer_id: int, event_id: int):
         print(result)
         if result is None:
             raise HTTPException(status_code=404, detail="Can't delete event")
+        connection.execute(sqlalchemy.text("REFRESH MATERIALIZED VIEW event_summary;"))
     return "OK"
 
 @router.get("/{volunteer_id}/events")
