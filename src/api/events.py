@@ -126,6 +126,9 @@ def search(
             search_sort_options.spots_left: "spots_left",
             search_sort_options.activity_level: "activity_level",
             search_sort_options.location: "location",
+            search_sort_options.event_id: "event_id",
+            search_sort_options.event_name: "name",
+            search_sort_options.supervisor_email: "sup_email",
         }
 
         sql += f" ORDER BY {sort_col_mapping[sort_col]} {sort_order.value}"
